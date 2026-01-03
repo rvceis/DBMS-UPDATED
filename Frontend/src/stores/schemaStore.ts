@@ -146,7 +146,10 @@ export const useSchemaStore = create<SchemaStore>((set, get) => ({
         method: 'DELETE',
         headers: buildHeaders(),
       });
-      if (!response.ok) throw new Error('Failed to delete schema');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Failed to delete schema' }));
+        throw new Error(errorData.message || 'Failed to delete schema');
+      }
       set((state) => ({
         schemas: state.schemas.filter((s) => s.id !== id),
         selectedSchema: state.selectedSchema?.id === id ? null : state.selectedSchema,
@@ -154,6 +157,7 @@ export const useSchemaStore = create<SchemaStore>((set, get) => ({
       }));
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
+      throw error;
     }
   },
 

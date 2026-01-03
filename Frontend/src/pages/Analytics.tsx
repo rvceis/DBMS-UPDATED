@@ -32,10 +32,10 @@ import {
 } from 'recharts';
 import { useAuthStore } from '@/stores/authStore';
 import { useSchemaStore } from '@/stores/schemaStore';
-import { useMetadataStore } from '@/stores/metadataStore';
+import { useDataStore } from '@/stores/dataStore';
 
 type DashboardStats = {
-  total_metadata_records: number;
+  total_data_records: number;
   total_schemas: number;
   total_users: number;
   total_asset_types: number;
@@ -58,7 +58,7 @@ const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'
 export const Analytics = () => {
   const { token, user } = useAuthStore();
   const { schemas, fetchSchemas } = useSchemaStore();
-  const { records, fetchRecords } = useMetadataStore();
+  const { records, fetchRecords } = useDataStore();
 
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [byAssetType, setByAssetType] = useState<{ name: string; value: number }[]>([]);
@@ -81,8 +81,8 @@ export const Analytics = () => {
       };
       const [s, bat, tl, ta, ra] = await Promise.all([
         fetch('/api/analytics/dashboard', { headers }).then(safeJson),
-        fetch('/api/analytics/metadata-by-asset-type', { headers }).then(safeJson),
-        fetch('/api/analytics/metadata-timeline', { headers }).then(safeJson),
+        fetch('/api/analytics/data-by-asset-type', { headers }).then(safeJson),
+        fetch('/api/analytics/data-timeline', { headers }).then(safeJson),
         fetch('/api/analytics/top-asset-types', { headers }).then(safeJson),
         fetch('/api/analytics/recent-activity', { headers }).then(safeJson),
       ]);
@@ -162,7 +162,7 @@ export const Analytics = () => {
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">Total Records</Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700 }}>{stats?.total_metadata_records ?? 0}</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 700 }}>{stats?.total_data_records ?? 0}</Typography>
               <Typography variant="body2" color="text.secondary">Last 7d: {stats?.recent_records_7days ?? 0}</Typography>
             </CardContent>
           </Card>
@@ -189,7 +189,7 @@ export const Analytics = () => {
         {/* Timeline */}
         <Grid item xs={12} md={8}>
           <Card>
-            <CardHeader title="Metadata Created (Last 30 days)" />
+            <CardHeader title="Data Records Created (Last 30 days)" />
             <CardContent sx={{ height: 300 }}>
               {timeline.length === 0 ? (
                 <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary' }}>
@@ -292,7 +292,7 @@ export const Analytics = () => {
         {/* Relationship graph */}
         <Grid item xs={12}>
           <Card>
-            <CardHeader title="Relationships: Asset Types → Schemas → Metadata" />
+            <CardHeader title="Relationships: Asset Types → Schemas → Data Records" />
             <CardContent>
               <Box sx={{ width: '100%', overflow: 'auto' }}>
                 <svg width={relationGraph.width} height={relationGraph.height}>
@@ -347,7 +347,7 @@ export const Analytics = () => {
         <Grid item xs={12}>
           <Card>
             <CardHeader
-              title="How new metadata assigns/creates schemas"
+              title="How new data records assign/create schemas"
               action={
                 <Stack direction="row" spacing={1}>
                   <Button size="small" variant={flowMode === 'assign' ? 'contained' : 'outlined'} onClick={() => setFlowMode('assign')}>Assign Existing</Button>
@@ -358,7 +358,7 @@ export const Analytics = () => {
             <CardContent>
               {flowMode === 'assign' ? (
                 <Stack spacing={1}>
-                  <Typography variant="body2">1. User submits metadata with values (e.g., title, width, height)</Typography>
+                  <Typography variant="body2">1. User submits data with values (e.g., title, width, height)</Typography>
                   <Typography variant="body2">2. Backend compares incoming keys to existing schemas (overlap score)</Typography>
                   <Typography variant="body2">3. If a best match exists, the record is linked to that schema</Typography>
                   <Typography variant="body2">4. Values are validated and stored against defined fields</Typography>
@@ -368,7 +368,7 @@ export const Analytics = () => {
                   <Typography variant="body2">1. No existing schema sufficiently matches the incoming values</Typography>
                   <Typography variant="body2">2. If allowed and asset type is provided, a new schema is created from the values</Typography>
                   <Typography variant="body2">3. The record links to this new schema; fields can be refined later</Typography>
-                  <Typography variant="body2">4. This mirrors your current auto-create behavior when submitting metadata</Typography>
+                  <Typography variant="body2">4. This mirrors your current auto-create behavior when submitting data</Typography>
                 </Stack>
               )}
             </CardContent>

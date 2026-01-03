@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,6 +13,16 @@ class BaseConfig:
     CORS_HEADERS = 'Content-Type'
     CORS_ALLOW_HEADERS = ['Content-Type', 'Authorization']
     CORS_SUPPORTS_CREDENTIALS = True
+    
+    # JWT Configuration - Session Timeout (24 hours)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    JWT_TOKEN_LOCATION = ['headers']
+    JWT_HEADER_NAME = 'Authorization'
+    JWT_HEADER_TYPE = 'Bearer'
+    
+    # Allow large file uploads (100MB)
+    MAX_CONTENT_LENGTH = 100 * 1024 * 1024
 
 
 class DevelopmentConfig(BaseConfig):

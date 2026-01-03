@@ -18,13 +18,13 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useSchemaStore } from '@/stores/schemaStore';
-import { useMetadataStore } from '@/stores/metadataStore';
+import { useDataStore } from '@/stores/dataStore';
 import { useAssetTypesStore } from '@/stores/assetTypesStore';
 import { TrendingUp, Database, FileText, Users, Activity, ArrowUp } from 'lucide-react';
 
 export const Dashboard = () => {
   const { schemas, fetchSchemas } = useSchemaStore();
-  const { records, fetchRecords } = useMetadataStore();
+  const { records, fetchRecords } = useDataStore();
   const { assetTypes, fetchAssetTypes } = useAssetTypesStore();
   const [stats, setStats] = useState({
     totalSchemas: 0,
@@ -93,7 +93,7 @@ export const Dashboard = () => {
           Dashboard Overview
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Welcome back! Here's what's happening with your metadata today.
+          Welcome back! Here's what's happening with your data today.
         </Typography>
       </Box>
 
@@ -111,7 +111,7 @@ export const Dashboard = () => {
         <Grid item xs={12} sm={6} md={3}>
           <StatCard
             icon={FileText}
-            label="Metadata Records"
+            label="Data Records"
             value={stats.totalRecords}
             trend="All time"
             color="#EC4899"

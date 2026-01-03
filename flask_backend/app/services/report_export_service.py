@@ -329,15 +329,27 @@ class ReportExportService:
                 return '\n'.join(lines)
             
             column_labels = pdf_config.get('column_labels', {})
-            headers = ['ID', 'Name', 'Created'] + [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
+            
+            # Detect format: bulk import (record_id, row_index) vs single records (id, name)
+            is_bulk_format = data and 'row_index' in data[0]
+            
+            if is_bulk_format:
+                headers = ['Record ID', 'Record Name', 'Row #', 'Created'] + [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
+            else:
+                headers = ['ID', 'Name', 'Created'] + [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
+            
             num_cols = len(headers)
-            if num_cols > 8:
-                # Vertical table layout for each record
+            if num_cols > 15:
+                # Vertical table layout for each record (only for very wide tables)
                 for idx, row in enumerate(data):
                     record_table_data = []
-                    # ID, Name, Created
-                    record_table_data.append(['ID', str(row.get('id', ''))])
-                    record_table_data.append(['Name', str(row.get('name', ''))])
+                    if is_bulk_format:
+                        record_table_data.append(['Record ID', str(row.get('record_id', ''))])
+                        record_table_data.append(['Record Name', str(row.get('record_name', ''))])
+                        record_table_data.append(['Row #', str(row.get('row_index', ''))])
+                    else:
+                        record_table_data.append(['ID', str(row.get('id', ''))])
+                        record_table_data.append(['Name', str(row.get('name', ''))])
                     record_table_data.append(['Created', str(row.get('created_at', ''))[:10]])
                     for i, field in enumerate(fields):
                         label = headers[i+3]  # offset by 3 for ID, Name, Created
@@ -375,11 +387,19 @@ class ReportExportService:
                 # Normal horizontal table layout
                 table_data = [headers]
                 for row in data:
-                    table_row = [
-                        str(row.get('id', '')),
-                        wrap_text_multi(str(row.get('name', '')), max_words=2),
-                        str(row.get('created_at', ''))[:10]
-                    ]
+                    if is_bulk_format:
+                        table_row = [
+                            str(row.get('record_id', '')),
+                            wrap_text_multi(str(row.get('record_name', '')), max_words=2),
+                            str(row.get('row_index', '')),
+                            str(row.get('created_at', ''))[:10]
+                        ]
+                    else:
+                        table_row = [
+                            str(row.get('id', '')),
+                            wrap_text_multi(str(row.get('name', '')), max_words=2),
+                            str(row.get('created_at', ''))[:10]
+                        ]
                     for field in fields:
                         value = row.get(field, None)
                         if value is None and isinstance(row.get('values'), dict):
@@ -426,6 +446,304 @@ class ReportExportService:
                 elements.append(table)
                 elements.append(Spacer(1, 0.4*inch))
                 elements.append(PageBreak())
+        
+        # Build PDF
+        doc.build(elements)
+        
+        return filepath    
+    def export_multitable_csv(self, report_data: Dict, filename: str) -> str:
+        """
+        Generate CSV file with multiple tables (one per section)
+        
+        Args:
+            report_data: Report data with multiple tables
+            filename: Output filename
+        
+        Returns:
+            Full file path
+        """
+        filepath = os.path.join(self.reports_dir, filename)
+        
+        with open(filepath, 'w', newline='', encoding='utf-8-sig') as csvfile:
+            writer = csv.writer(csvfile)
+            
+            # Write report header
+            writer.writerow([f"Report: {report_data.get('title', 'Multi-Table Report')}"])
+            writer.writerow([f"Generated: {report_data.get('generated_at', 'N/A')}"])
+            writer.writerow([])
+            
+            # Write each table
+            for table_idx, table in enumerate(report_data.get('tables', [])):
+                if table_idx > 0:
+                    writer.writerow([])
+                    writer.writerow([])
+                
+                # Table header
+                writer.writerow([f"Table: {table.get('schema_name', f'Table {table_idx + 1}')}"])
+                if table.get('schema_description'):
+                    writer.writerow([f"Description: {table.get('schema_description')}"])
+                writer.writerow([])
+                
+                # Get all data items for this table
+                items = table.get('data', [])
+                current_section = None
+                
+                for item in items:
+                    item_type = item.get('type')
+                    
+                    # Write section headers
+                    if item_type == 'schema_info':
+                        writer.writerow(['SCHEMA INFORMATION'])
+                        writer.writerow(['Schema Name', item.get('schema_name', '')])
+                        writer.writerow(['Description', item.get('schema_description', '')])
+                        writer.writerow(['Created', item.get('created_at', '')])
+                        writer.writerow(['Updated', item.get('updated_at', '')])
+                        writer.writerow([])
+                    
+                    elif item_type == 'field_metadata':
+                        if current_section != 'metadata':
+                            writer.writerow(['FIELD METADATA'])
+                            writer.writerow(['Field Name', 'Type', 'Searchable', 'Required', 'Description'])
+                            current_section = 'metadata'
+                        writer.writerow([
+                            item.get('field_name', ''),
+                            item.get('field_type', ''),
+                            item.get('is_searchable', False),
+                            item.get('is_required', False),
+                            item.get('description', ''),
+                        ])
+                    
+                    elif item_type == 'summary':
+                        if current_section != 'summary':
+                            writer.writerow([])
+                            writer.writerow(['SUMMARY'])
+                            current_section = 'summary'
+                        writer.writerow(['Total Records', item.get('total_records', 0)])
+                        writer.writerow(['Total Fields', item.get('total_fields', 0)])
+                        writer.writerow([])
+                    
+                    elif item_type == 'record':
+                        if current_section != 'records':
+                            writer.writerow([])
+                            writer.writerow(['RECORDS'])
+                            # Write column headers from first record
+                            content = item.get('content', {})
+                            headers = ['ID', 'Name'] + list(content.keys())
+                            writer.writerow(headers)
+                            current_section = 'records'
+                        
+                        content = item.get('content', {})
+                        row_data = [item.get('record_id', ''), item.get('record_name', '')]
+                        row_data.extend([str(v) if v is not None else '' for v in content.values()])
+                        writer.writerow(row_data)
+        
+        return filepath
+    
+    def export_multitable_pdf(self, report_data: Dict, pdf_config: Dict, filename: str) -> str:
+        """
+        Generate PDF file with multiple tables
+        
+        Args:
+            report_data: Report data with multiple tables
+            pdf_config: PDF configuration options
+            filename: Output filename
+        
+        Returns:
+            Full file path
+        """
+        filepath = os.path.join(self.reports_dir, filename)
+        
+        # Parse PDF config
+        orientation = pdf_config.get('orientation', 'portrait')
+        page_size_name = pdf_config.get('page_size', 'A4')
+        
+        if page_size_name == 'letter':
+            page_size = letter
+        else:
+            page_size = A4
+        
+        if orientation == 'landscape':
+            page_size = landscape(page_size)
+        
+        # Create document
+        doc = SimpleDocTemplate(
+            filepath,
+            pagesize=page_size,
+            rightMargin=0.5*inch,
+            leftMargin=0.5*inch,
+            topMargin=0.75*inch,
+            bottomMargin=0.75*inch,
+        )
+        
+        elements = []
+        styles = getSampleStyleSheet()
+        
+        # Add title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#1976d2'),
+            spaceAfter=12,
+            alignment=TA_CENTER,
+        )
+        elements.append(Paragraph(pdf_config.get('title', 'Report'), title_style))
+        elements.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}", styles['Normal']))
+        elements.append(Spacer(1, 0.3*inch))
+        
+        # Add each table
+        for table_idx, table in enumerate(report_data.get('tables', [])):
+            if table_idx > 0:
+                elements.append(PageBreak())
+            
+            # Table heading
+            heading_style = ParagraphStyle(
+                f'Heading{table_idx}',
+                parent=styles['Heading2'],
+                fontSize=14,
+                textColor=colors.HexColor('#424242'),
+                spaceAfter=10,
+                spaceBefore=10,
+            )
+            elements.append(Paragraph(f"Table: {table.get('schema_name', f'Table {table_idx + 1}')}", heading_style))
+            
+            if table.get('schema_description'):
+                elements.append(Paragraph(f"<i>{table.get('schema_description')}</i>", styles['Normal']))
+            
+            elements.append(Spacer(1, 0.2*inch))
+            
+            # Build sections (schema info, metadata, summary, records)
+            items = table.get('data', [])
+            
+            # Group items by type
+            sections = {'schema_info': [], 'metadata': [], 'summary': [], 'records': []}
+            for item in items:
+                item_type = item.get('type')
+                if item_type in sections:
+                    sections[item_type].append(item)
+            
+            # Schema Info Section
+            if sections['schema_info']:
+                elements.append(Paragraph("<b>Schema Information</b>", styles['Heading3']))
+                for item in sections['schema_info']:
+                    schema_table_data = [
+                        ['Property', 'Value'],
+                        ['Schema Name', item.get('schema_name', '')],
+                        ['Description', item.get('schema_description', '')],
+                        ['Created', item.get('created_at', '')],
+                        ['Updated', item.get('updated_at', '')],
+                    ]
+                    schema_table = Table(schema_table_data, colWidths=[2*inch, 4*inch])
+                    schema_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#e3f2fd')),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1976d2')),
+                        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 9),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                    ]))
+                    elements.append(schema_table)
+                    elements.append(Spacer(1, 0.2*inch))
+            
+            # Field Metadata Section
+            if sections['metadata']:
+                elements.append(Paragraph("<b>Field Metadata</b>", styles['Heading3']))
+                metadata_data = [
+                    ['Field Name', 'Type', 'Searchable', 'Required', 'Description']
+                ]
+                for item in sections['metadata']:
+                    metadata_data.append([
+                        item.get('field_name', ''),
+                        item.get('field_type', ''),
+                        'Yes' if item.get('is_searchable') else 'No',
+                        'Yes' if item.get('is_required') else 'No',
+                        item.get('description', '')[:50],  # Truncate long descriptions
+                    ])
+                
+                metadata_table = Table(metadata_data, colWidths=[1.2*inch, 1*inch, 0.8*inch, 0.8*inch, 1.7*inch])
+                metadata_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#e3f2fd')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1976d2')),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 8),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
+                ]))
+                elements.append(metadata_table)
+                elements.append(Spacer(1, 0.2*inch))
+            
+            # Summary Section
+            if sections['summary']:
+                elements.append(Paragraph("<b>Summary</b>", styles['Heading3']))
+                for item in sections['summary']:
+                    summary_data = [
+                        ['Metric', 'Value'],
+                        ['Total Records', str(item.get('total_records', 0))],
+                        ['Total Fields', str(item.get('total_fields', 0))],
+                    ]
+                    summary_table = Table(summary_data, colWidths=[2*inch, 2*inch])
+                    summary_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#e3f2fd')),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1976d2')),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 10),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                    ]))
+                    elements.append(summary_table)
+                elements.append(Spacer(1, 0.2*inch))
+            
+            # Records Section (limited rows for PDF readability)
+            if sections['records']:
+                elements.append(Paragraph("<b>Records</b>", styles['Heading3']))
+                
+                # Limit to first 50 records for PDF readability
+                record_items = sections['records'][:50]
+                
+                if record_items:
+                    # Get all column names from first record
+                    first_record = record_items[0].get('content', {})
+                    columns = ['ID', 'Name'] + list(first_record.keys())
+                    
+                    # Build table data
+                    records_data = [columns]
+                    for item in record_items:
+                        content = item.get('content', {})
+                        row = [
+                            str(item.get('record_id', '')),
+                            str(item.get('record_name', ''))[:30],  # Truncate long names
+                        ]
+                        row.extend([str(v)[:20] if v is not None else '' for v in content.values()])  # Truncate values
+                        records_data.append(row)
+                    
+                    # Calculate column widths (adapt to number of columns)
+                    total_width = 7.5 * inch
+                    col_width = total_width / len(columns)
+                    
+                    records_table = Table(records_data, colWidths=[col_width] * len(columns))
+                    records_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#e3f2fd')),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1976d2')),
+                        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 8),
+                        ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+                        ('TOPPADDING', (0, 0), (-1, -1), 4),
+                        ('BOTTOMPADDING', (0, 1), (-1, -1), 4),
+                        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                        ('WORDWRAP', (0, 1), (-1, -1), 'LR'),
+                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                    ]))
+                    elements.append(records_table)
+                    
+                    if len(sections['records']) > 50:
+                        elements.append(Spacer(1, 0.1*inch))
+                        elements.append(Paragraph(f"<i>Showing 50 of {len(sections['records'])} records</i>", styles['Normal']))
         
         # Build PDF
         doc.build(elements)

@@ -125,6 +125,17 @@ class MetadataRecord(db.Model):
     # Relationships
     field_values = db.relationship('FieldValue', backref='metadata_record', lazy=True, cascade="all, delete-orphan")
     
+    def get_parsed_data(self):
+        """Parse and return raw_data or metadata_json, handling both string and parsed formats"""
+        import json
+        data = self.raw_data or self.metadata_json
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except:
+                return None
+        return data
+    
     def to_dict(self, include_values=True):
         result = {
             "id": self.id,
@@ -137,8 +148,64 @@ class MetadataRecord(db.Model):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }
         if include_values:
-            result["values"] = {fv.schema_field.field_name: fv.get_value() for fv in self.field_values}
+            # Check if data is stored in separate data_rows table
+            row_count = self.data_rows.count()
+            if row_count > 0:
+                # Data stored in data_rows table (new approach)
+                result["values"] = {}
+                result["row_count"] = row_count
+                result["is_bulk_import"] = row_count > 1
+                result["storage_type"] = "table"
+            # Prefer field_values (EAV), fallback to metadata_json or raw_data
+            elif self.field_values:
+                result["values"] = {fv.schema_field.field_name: fv.get_value() for fv in self.field_values}
+                result["storage_type"] = "eav"
+            else:
+                parsed_data = self.get_parsed_data()
+                if isinstance(parsed_data, list):
+                    # Array format (bulk import - legacy)
+                    result["values"] = {}
+                    result["data_rows"] = parsed_data
+                    result["row_count"] = len(parsed_data)
+                    result["is_bulk_import"] = True
+                    result["storage_type"] = "json_array"
+                elif isinstance(parsed_data, dict):
+                    # Single object format
+                    result["values"] = parsed_data
+                    result["is_bulk_import"] = False
+                    result["storage_type"] = "json_object"
+                else:
+                    result["values"] = {}
+                    result["is_bulk_import"] = False
+                    result["storage_type"] = "none"
         return result
+
+
+class DataRow(db.Model):
+    """
+    Store individual data rows separately for better ACID compliance and query performance.
+    Uses JSONB for dynamic schema support while maintaining relational benefits.
+    """
+    __tablename__ = "data_rows"
+    id = db.Column(db.Integer, primary_key=True)
+    record_id = db.Column(db.Integer, db.ForeignKey("metadata_records.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False, index=True)
+    row_index = db.Column(db.Integer, nullable=False)  # Order within the dataset
+    data = db.Column(db.JSON, nullable=False)  # JSONB in PostgreSQL - supports indexing and querying
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    metadata_record = db.relationship('MetadataRecord', backref=db.backref('data_rows', lazy='dynamic', cascade="all, delete-orphan"))
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "record_id": self.record_id,
+            "row_index": self.row_index,
+            "data": self.data,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
 
 
 class FieldValue(db.Model):
@@ -217,7 +284,7 @@ class ChangeLog(db.Model):
     """Enhanced change log for schema versioning"""
     __tablename__ = "change_logs"
     id = db.Column(db.Integer, primary_key=True)
-    schema_id = db.Column(db.Integer, db.ForeignKey("schemas.id"), nullable=True)
+    schema_id = db.Column(db.Integer, db.ForeignKey("schemas.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     change_type = db.Column(db.String(64), nullable=False)  # created, updated, deleted, field_added, field_removed, etc.
     description = db.Column(db.Text, nullable=True)
     change_details = db.Column(db.JSON, nullable=True)  # Store detailed change information
@@ -241,7 +308,7 @@ class SchemaVersion(db.Model):
     """Track complete schema versions for rollback"""
     __tablename__ = "schema_versions"
     id = db.Column(db.Integer, primary_key=True)
-    schema_id = db.Column(db.Integer, db.ForeignKey("schemas.id"), nullable=False)
+    schema_id = db.Column(db.Integer, db.ForeignKey("schemas.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     version_number = db.Column(db.Integer, nullable=False)
     schema_snapshot = db.Column(db.JSON, nullable=False)  # Complete schema with all fields
     change_summary = db.Column(db.Text, nullable=True)
@@ -271,11 +338,26 @@ class ReportTemplate(db.Model):
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     
-    # What data to include
-    schema_id = db.Column(db.Integer, db.ForeignKey('schemas.id'))
+    # What data to include - support both legacy single schema and new multi-table configs
+    schema_id = db.Column(db.Integer, db.ForeignKey('schemas.id', ondelete='CASCADE', onupdate='CASCADE'))
     asset_type_id = db.Column(db.Integer, db.ForeignKey('asset_types.id'))
     
-    # Query definition (JSON)
+    # Multi-table support (NEW): Array of table configs for comprehensive reporting
+    table_configs = db.Column(db.JSON)
+    # [{
+    #   "schema_id": 1,
+    #   "fields": ["field1", "field2"],
+    #   "filters": [{"field": "status", "operator": "eq", "value": "active"}],
+    #   "sort": [{"field": "created_at", "direction": "desc"}]
+    # }]
+    
+    # Content options (NEW): What to include in the generated report
+    include_records = db.Column(db.Boolean, default=True)  # Actual data/record content
+    include_metadata = db.Column(db.Boolean, default=True)  # Field metadata (data types, etc.)
+    include_schema_details = db.Column(db.Boolean, default=False)  # Schema name, description
+    include_summary = db.Column(db.Boolean, default=True)  # Summary stats (record count, etc.)
+    
+    # Query definition (JSON) - legacy, kept for backward compatibility
     query_config = db.Column(db.JSON)
     # {
     #   "fields": ["field1", "field2", ...],
@@ -326,7 +408,12 @@ class ReportTemplate(db.Model):
             "created_by": self.created_by,
             "is_public": self.is_public,
             "schedule_enabled": self.schedule_enabled,
+            "include_records": self.include_records,
+            "include_metadata": self.include_metadata,
+            "include_schema_details": self.include_schema_details,
+            "include_summary": self.include_summary,
             "field_count": len(self.query_config.get('fields', [])) if self.query_config else 0,
+            "table_count": len(self.table_configs) if self.table_configs else (1 if self.schema_id else 0),
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
@@ -335,6 +422,7 @@ class ReportTemplate(db.Model):
                 "query_config": self.query_config,
                 "display_config": self.display_config,
                 "pdf_config": self.pdf_config,
+                "table_configs": self.table_configs,
             })
         return data
 
@@ -343,7 +431,7 @@ class ReportExecution(db.Model):
     """History of generated reports"""
     __tablename__ = "report_executions"
     id = db.Column(db.Integer, primary_key=True)
-    template_id = db.Column(db.Integer, db.ForeignKey('report_templates.id'), nullable=True)
+    template_id = db.Column(db.Integer, db.ForeignKey('report_templates.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=True)
     
     # Who requested it
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))

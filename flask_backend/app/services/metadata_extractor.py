@@ -142,10 +142,12 @@ class MetadataExtractor:
             try:
                 data = json.load(f)
                 
-                # If it's a list, analyze first record
+                # If it's a list, analyze first record but store all data
                 if isinstance(data, list):
                     metadata['is_array'] = True
                     metadata['record_count'] = len(data)
+                    # Store the full data
+                    metadata['data'] = data
                     if data:
                         sample = data[0]
                         metadata['sample'] = str(sample)[:200]
@@ -155,8 +157,11 @@ class MetadataExtractor:
                 elif isinstance(data, dict):
                     metadata['is_array'] = False
                     metadata['sample'] = str(data)[:200]
+                    # Merge dict data into metadata
+                    metadata.update(data)
                     fields = self._infer_fields_from_dict(data)
                 else:
+                    metadata['value'] = str(data)
                     fields = [{'field_name': 'value', 'field_type': 'string', 'is_required': True}]
             except json.JSONDecodeError:
                 fields = [{'field_name': 'content', 'field_type': 'string', 'is_required': True}]
@@ -176,9 +181,10 @@ class MetadataExtractor:
                 metadata['column_count'] = len(headers)
                 metadata['columns'] = headers
                 
-                # Count rows
-                row_count = sum(1 for _ in reader)
-                metadata['row_count'] = row_count
+                # Read all rows and store data
+                rows = list(reader)
+                metadata['row_count'] = len(rows)
+                metadata['data'] = rows  # Store all data rows
                 
                 fields = [{'field_name': col, 'field_type': 'string', 'is_required': False} for col in headers]
         except:

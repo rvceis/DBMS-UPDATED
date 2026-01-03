@@ -13,19 +13,31 @@ def create_app():
     # Disable strict slashes to prevent redirects
     app.url_map.strict_slashes = False
     
-    # Enable CORS for all routes with proper preflight handling
-    CORS(app, resources={r"/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": False
-    }})
+    # Enable CORS with automatic OPTIONS handling
+    CORS(app, 
+         origins=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+         allow_headers=["Content-Type", "Authorization"],
+         supports_credentials=True,
+         automatic_options=True)
 
     # init extensions
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
     ma.init_app(app)
+    
+    # Handle OPTIONS requests BEFORE JWT processing
+    @app.before_request
+    def handle_options():
+        from flask import request, make_response
+        if request.method == "OPTIONS":
+            response = make_response()
+            response.headers.add("Access-Control-Allow-Origin", request.headers.get("Origin", "*"))
+            response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization")
+            response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+            response.headers.add("Access-Control-Allow-Credentials", "true")
+            return response, 200
 
     # JWT error handlers
     @jwt.expired_token_loader
@@ -52,6 +64,7 @@ def create_app():
     # Use dynamic schemas routes
     from .routes.schemas_dynamic import schemas_bp
     from .routes.metadata import metadata_bp
+    from .routes.data import data_bp  # New generic data routes
     from .routes.analytics import analytics_bp
     from .routes.reports import reports_bp
     from .routes.uploads import uploads_bp
@@ -61,6 +74,7 @@ def create_app():
     app.register_blueprint(asset_types_bp, url_prefix="/asset-types")
     app.register_blueprint(schemas_bp, url_prefix="/schemas")
     app.register_blueprint(metadata_bp, url_prefix="/metadata")
+    app.register_blueprint(data_bp, url_prefix="/data")  # New generic data endpoint
     app.register_blueprint(analytics_bp, url_prefix="/analytics")
     app.register_blueprint(reports_bp, url_prefix="/reports")
     app.register_blueprint(uploads_bp, url_prefix="/uploads")

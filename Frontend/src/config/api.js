@@ -16,6 +16,9 @@ export const API_ENDPOINTS = {
   // Schemas
   SCHEMAS: '/schemas',
   
-  // Metadata
+  // Metadata (legacy)
   METADATA: '/metadata',
+  
+  // Data (generic CRUD with dynamic schemas)
+  DATA: '/data',
 };

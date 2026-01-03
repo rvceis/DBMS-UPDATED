@@ -3,6 +3,8 @@ Data Upload/Import Routes
 """
 import os
 import tempfile
+import json
+from datetime import datetime
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from ..models import SchemaModel, SchemaField, MetadataRecord, FieldValue
@@ -198,6 +200,58 @@ def import_data():
         return jsonify({'error': f'Import error: {str(e)}'}), 500
 
 
+@uploads_bp.route('/test-csv', methods=['POST'])
+@jwt_required()
+def test_csv_parse():
+    """Debug endpoint - test CSV parsing"""
+    data = request.get_json()
+    content = data.get('content', '')
+    
+    if not content:
+        return jsonify({'error': 'content required'}), 400
+    
+    # Parse CSV
+    parsed = import_service.parse_csv(content, ',')
+    
+    print(f"\n🧪 CSV PARSE TEST:")
+    print(f"   Input length: {len(content)} chars")
+    print(f"   Records parsed: {len(parsed)}")
+    print(f"   First record: {parsed[0] if parsed else None}\n")
+    
+    return jsonify({
+        'input_chars': len(content),
+        'records_count': len(parsed),
+        'first_record': parsed[0] if parsed else None,
+        'all_records_count': len(parsed)
+    }), 200
+
+
+@uploads_bp.route('/debug-file-size', methods=['POST'])
+@jwt_required()
+def debug_file_size():
+    """Debug endpoint - just check file size"""
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file'}), 400
+    
+    file = request.files['file']
+    
+    # Read full content
+    content = file.read()
+    
+    print(f"\n🔍 DEBUG FILE SIZE:")
+    print(f"   Filename: {file.filename}")
+    print(f"   Content-Length header: {request.content_length}")
+    print(f"   Actual bytes read: {len(content)}")
+    print(f"   First 100 bytes: {repr(content[:100])}")
+    print()
+    
+    return jsonify({
+        'filename': file.filename,
+        'content_length_header': request.content_length,
+        'actual_bytes_read': len(content)
+    }), 200
+
+
 @uploads_bp.route('/file', methods=['POST'])
 @jwt_required()
 def upload_file():
@@ -226,8 +280,25 @@ def upload_file():
         return jsonify({'error': 'Schema not found'}), 404
     
     try:
-        # Read file content
-        content = file.read().decode('utf-8-sig')  # Handle BOM
+        # DEBUG: Check file object before reading
+        print(f"\n📂 FILE OBJECT DEBUG:")
+        print(f"   Filename: {file.filename}")
+        print(f"   Content-Type: {file.content_type}")
+        print(f"   Request.content_length: {request.content_length}")
+        
+        # Seek to beginning (in case file was already read)
+        file.seek(0)
+        
+        # Read ALL file content at once
+        file_bytes = file.read()
+        print(f"   Bytes read: {len(file_bytes)}")
+        
+        # Decode to string
+        content = file_bytes.decode('utf-8-sig')
+        print(f"   Decoded chars: {len(content)}")
+        print(f"   Newlines: {content.count(chr(10))}")
+        print(f"   First 100 chars: {repr(content[:100])}")
+        print(f"   Last 100 chars: {repr(content[-100:])}\n")
         
         # Detect format from extension
         filename = file.filename.lower()
@@ -250,7 +321,9 @@ def upload_file():
             detected_format = 'json'
         elif format_hint in ['csv', 'tsv']:
             delimiter = ',' if format_hint == 'csv' else '\t'
+            print(f"   Parsing as CSV with delimiter: '{delimiter}'")
             parsed_data = import_service.parse_csv(content, delimiter)
+            print(f"   CSV parser returned: {len(parsed_data)} records")
             detected_format = format_hint
         else:
             parsed_data = import_service.parse_plain_text(content, schema_fields)
@@ -263,15 +336,26 @@ def upload_file():
         ]
         mapping = import_service.suggest_field_mapping(parsed_data, schema_field_defs)
         
-        return jsonify({
+        print(f"\n✓ FILE UPLOAD PARSED: {len(parsed_data)} records")
+        print(f"  Fields: {list(parsed_data[0].keys()) if parsed_data else []}")
+        print(f"  Sending all_records with {len(parsed_data)} items...")
+        
+        response_data = {
             'filename': file.filename,
             'format_detected': detected_format,
             'record_count': len(parsed_data),
-            'preview': parsed_data[:10],
+            'preview': parsed_data[:10],  # First 10 for preview UI
+            'all_records': parsed_data,   # ALL records for actual import
             'suggested_mapping': mapping,
             'data_fields': list(parsed_data[0].keys()) if parsed_data else [],
             'schema_fields': schema_fields,
-        })
+        }
+        
+        print(f"  Response keys: {list(response_data.keys())}")
+        print(f"  all_records length in response: {len(response_data['all_records'])}")
+        print(f"  Response size (JSON): {len(json.dumps(response_data)) / 1024}KB\n")
+        
+        return jsonify(response_data)
         
     except Exception as e:
         return jsonify({'error': f'File processing error: {str(e)}'}), 500
@@ -392,9 +476,23 @@ def create_schema_from_metadata():
                     schema_id=schema.id,
                     asset_type_id=int(asset_type_id),
                     created_by=user_id,
-                    metadata_json=metadata
+                    metadata_json=metadata,
+                    raw_data=metadata  # Store all data
                 )
                 db.session.add(record)
+                db.session.flush()  # Get record ID
+                
+                # Create FieldValue records for each extracted field
+                schema_fields = SchemaField.query.filter_by(schema_id=schema.id).all()
+                for field in schema_fields:
+                    if field.field_name in metadata:
+                        field_value = FieldValue(
+                            record_id=record.id,
+                            schema_field_id=field.id
+                        )
+                        field_value.set_value(metadata[field.field_name])
+                        db.session.add(field_value)
+                
                 db.session.commit()
                 record_id = record.id
             except Exception as e:
@@ -578,3 +676,480 @@ def smart_upload():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Smart upload error: {str(e)}'}), 500
+
+
+@uploads_bp.route('/import-file', methods=['POST'])
+@jwt_required()
+def import_file():
+    """
+    Import data from uploaded file (CSV, Excel, JSON, etc.)
+    
+    Multipart form data:
+        file: The file to import
+        schema_id: (optional) Schema ID to import into
+        asset_type_id: (optional) Asset type ID
+        auto_adapt_schema: (optional, default=true) Whether to add new fields to schema
+    """
+    user_id = int(get_jwt_identity())
+    
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+    
+    file = request.files['file']
+    if not file.filename:
+        return jsonify({'error': 'No filename'}), 400
+    
+    # Validate file extension
+    allowed_extensions = {'.json', '.csv', '.tsv', '.xlsx', '.xls', '.txt'}
+    file_ext = '.' + file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if file_ext not in allowed_extensions:
+        return jsonify({'error': f'Unsupported file format: {file_ext}. Supported: JSON, CSV, TSV, Excel, TXT'}), 400
+    
+    schema_id = request.form.get('schema_id')
+    asset_type_id = request.form.get('asset_type_id')
+    auto_adapt = request.form.get('auto_adapt_schema', 'true').lower() == 'true'
+    
+    try:
+        # Read file
+        file_content = file.read()
+        if not file_content:
+            return jsonify({'error': 'File is empty'}), 400
+            
+        filename = file.filename
+        
+        # For text formats, decode to string
+        if filename.endswith(('.json', '.csv', '.tsv', '.txt')):
+            try:
+                content = file_content.decode('utf-8')
+            except UnicodeDecodeError:
+                return jsonify({'error': 'File must be UTF-8 encoded text'}), 400
+            file_bytes = None
+        else:
+            # Binary formats (Excel)
+            content = ''
+            file_bytes = file_content
+        
+        # Parse file
+        try:
+            detected_format, parsed_data = import_service.auto_parse(
+                content,
+                filename=filename,
+                file_bytes=file_bytes
+            )
+        except ValueError as ve:
+            return jsonify({'error': f'Parse error: {str(ve)}'}), 400
+        except Exception as e:
+            return jsonify({'error': f'Failed to parse {file_ext} file: {str(e)}'}), 400
+        
+        if not parsed_data:
+            return jsonify({'error': 'No data found in file'}), 400
+        
+        # Get or suggest schema
+        schema = None
+        schema_created = False
+        # Find similar schemas (same or subset of fields)
+        from ..services.schema_matcher import find_best_schema_from_keys
+        
+        data_fields = list(parsed_data[0].keys())
+        similar_schemas = []
+        
+        if not schema_id:
+            # Find all schemas with similar field structure
+            from ..models import SchemaModel
+            all_schemas = SchemaModel.query.filter_by(is_active=True).all()
+            
+            for existing_schema in all_schemas:
+                existing_fields = {f.field_name for f in existing_schema.fields if not f.is_deleted}
+                data_fields_set = set(data_fields)
+                
+                # Calculate similarity using multiple metrics
+                matching_fields = existing_fields & data_fields_set
+                new_fields = data_fields_set - existing_fields
+                missing_fields = existing_fields - data_fields_set
+                
+                # Similarity calculation:
+                # - All data fields in schema: 100% (schema is superset, can reuse)
+                # - Missing fields but good match: percentage based
+                # - New fields: percentage based
+                
+                if len(data_fields_set) > 0:
+                    # Primary metric: how much of the data fields exist in schema
+                    fields_in_schema_percent = len(matching_fields) / len(data_fields_set) * 100
+                    
+                    # Secondary metric: penalize if schema has extra fields (but not much)
+                    extra_field_penalty = (len(missing_fields) / max(len(existing_fields), 1)) * 20  # Max 20% penalty
+                    
+                    similarity = max(0, fields_in_schema_percent - extra_field_penalty)
+                    
+                    # Show if at least 50% of data fields match
+                    if len(matching_fields) >= len(data_fields_set) * 0.5:
+                        similar_schemas.append({
+                            'schema_id': existing_schema.id,
+                            'schema_name': existing_schema.name,
+                            'similarity': round(similarity, 1),
+                            'existing_fields': list(existing_fields),
+                            'data_fields': data_fields,
+                            'new_fields': list(data_fields_set - existing_fields),
+                            'missing_fields': list(existing_fields - data_fields_set)
+                        })
+            
+            # Sort by similarity descending
+            similar_schemas.sort(key=lambda x: x['similarity'], reverse=True)
+        
+        suggested_fields = import_service.suggest_schema_fields(parsed_data)
+        
+        if schema_id:
+            schema = SchemaModel.query.get(schema_id)
+            if not schema:
+                return jsonify({'error': 'Schema not found'}), 404
+        else:
+            # Try to find best schema but DON'T auto-create
+            # Schema creation will happen in import-file-confirm based on user choice
+            data_fields = list(parsed_data[0].keys())
+            from ..services.schema_matcher import find_best_schema_from_keys
+            schema, score = find_best_schema_from_keys(data_fields, asset_type_id=asset_type_id)
+            
+            # Log but don't auto-create here
+            if schema:
+                print(f"✓ Found matching schema: {schema.name} (score: {score})")
+            else:
+                print(f"ℹ️ No matching schema found - will offer user choice in dialog")
+        
+        return jsonify({
+            'format_detected': detected_format,
+            'record_count': len(parsed_data),
+            'preview': parsed_data[:10],
+            'all_records': parsed_data,  # SEND ALL RECORDS FOR IMPORT
+            'suggested_fields': suggested_fields,
+            'similar_schemas': similar_schemas,  # Show similar schemas to user
+            'schema_info': {
+                'schema_id': schema.id,
+                'schema_name': schema.name,
+            } if schema else None,
+            'fields_added': False,
+            'schema_created': schema_created,
+            'schema': schema.to_dict(include_fields=False) if schema else None
+        }), 200
+        
+    except Exception as e:
+        # Better error handling - don't try to JSON serialize exception objects
+        import traceback
+        error_msg = str(e) if e else 'Unknown error'
+        # If error message is too long or contains non-serializable objects, truncate it
+        if len(error_msg) > 500:
+            error_msg = error_msg[:500]
+        print(f"File import error: {error_msg}")
+        print(traceback.format_exc())
+        return jsonify({'error': f'File import error: {error_msg}'}), 400
+
+
+@uploads_bp.route('/import-file-confirm', methods=['POST'])
+@jwt_required()
+def import_file_confirm():
+    """
+    Confirm and import file data into records
+    
+    Body: {
+        "records": [array of parsed records],
+        "schema_id": id,
+        "record_name": "Name for the imported dataset" (required),
+        "asset_type_id": id (optional),
+        "tag": "tag" (optional),
+        "field_mapping": {data_field: schema_field} (optional)
+    }
+    """
+    user_id = int(get_jwt_identity())
+    data = request.get_json()
+    
+    records_data = data.get('records', [])
+    record_name = data.get('record_name', 'Imported Dataset')
+    schema_id = data.get('schema_id')
+    asset_type_id = data.get('asset_type_id')
+    tag = data.get('tag')
+    field_mapping = data.get('field_mapping', {})
+    suggested_fields = data.get('suggested_fields', [])
+    schema_choice = data.get('schema_choice')  # NEW: Get schema choice from frontend
+    
+    print(f"\n📥 IMPORT CONFIRMATION RECEIVED:")
+    print(f"   Records count: {len(records_data)}")
+    print(f"   Record name: {record_name}")
+    print(f"   Schema ID: {schema_id}")
+    print(f"   Schema Choice: {schema_choice}")
+    print(f"   Fields in first record: {list(records_data[0].keys()) if records_data else []}\n")
+    
+    if not records_data:
+        return jsonify({'error': 'records required'}), 400
+    
+    try:
+        # Get or create schema based on user's choice
+        schema = None
+        
+        # Handle schema choice from user
+        if schema_choice:
+            choice_action = schema_choice.get('action')
+            choice_schema_id = schema_choice.get('schema_id')
+            
+            # Ensure schema_id is an integer
+            if choice_schema_id:
+                choice_schema_id = int(choice_schema_id)
+            
+            if choice_action == 'reuse':
+                # User chose to reuse existing schema
+                schema = SchemaModel.query.get(choice_schema_id)
+                if not schema:
+                    print(f"❌ Schema not found: ID {choice_schema_id}, Type: {type(choice_schema_id)}")
+                    return jsonify({'error': f'Selected schema not found (ID: {choice_schema_id})'}), 404
+                print(f"✓ REUSING EXISTING SCHEMA: {schema.name} (ID: {schema.id})")
+            
+            elif choice_action == 'add_fields':
+                # User chose to add new fields to existing schema
+                schema = SchemaModel.query.get(choice_schema_id)
+                if not schema:
+                    return jsonify({'error': 'Selected schema not found'}), 404
+                
+                # Add missing fields to the schema
+                existing_fields = {f.field_name for f in schema.fields if not f.is_deleted}
+                max_order = max([f.order_index for f in schema.fields if f.order_index] + [0])
+                
+                added_fields = []
+                for idx, suggested_field in enumerate(suggested_fields):
+                    if suggested_field['field_name'] not in existing_fields:
+                        new_field = SchemaField(
+                            schema_id=schema.id,
+                            field_name=suggested_field['field_name'],
+                            field_type=suggested_field.get('field_type', 'string'),
+                            is_required=False,
+                            description='Added during import',
+                            order_index=max_order + idx + 1
+                        )
+                        db.session.add(new_field)
+                        added_fields.append(suggested_field['field_name'])
+                
+                db.session.commit()
+                
+                # Log the change
+                from ..models import ChangeLog
+                change_log = ChangeLog(
+                    schema_id=schema.id,
+                    change_type='field_added',
+                    description=f"Added {len(added_fields)} new field(s) during file import",
+                    change_details={
+                        'added_fields': added_fields,
+                        'import_type': 'file_import'
+                    },
+                    changed_by=user_id
+                )
+                db.session.add(change_log)
+                db.session.commit()
+                print(f"✓ ADDED NEW FIELDS TO SCHEMA: {schema.name} (ID: {schema.id}), Fields: {added_fields}")
+            
+            elif choice_action == 'new_version':
+                # User chose to create a new version of the schema
+                original_schema = SchemaModel.query.get(choice_schema_id)
+                if not original_schema:
+                    return jsonify({'error': 'Selected schema not found'}), 404
+                
+                # Create new version
+                new_version = original_schema.version + 1
+                schema = SchemaModel(
+                    name=f"{original_schema.name} (v{new_version})",
+                    version=new_version,
+                    asset_type_id=original_schema.asset_type_id,
+                    schema_json={},
+                    created_by=user_id,
+                    parent_schema_id=original_schema.id,
+                    allow_additional_fields=True
+                )
+                db.session.add(schema)
+                db.session.flush()
+                
+                # Copy existing fields from original schema
+                for field in original_schema.fields:
+                    if not field.is_deleted:
+                        new_field = SchemaField(
+                            schema_id=schema.id,
+                            field_name=field.field_name,
+                            field_type=field.field_type,
+                            is_required=field.is_required,
+                            description=field.description,
+                            order_index=field.order_index
+                        )
+                        db.session.add(new_field)
+                
+                # Add any new fields from the imported data
+                existing_fields = {f.field_name for f in original_schema.fields if not f.is_deleted}
+                max_order = max([f.order_index for f in original_schema.fields if f.order_index] + [0])
+                
+                added_fields = []
+                for idx, suggested_field in enumerate(suggested_fields):
+                    if suggested_field['field_name'] not in existing_fields:
+                        new_field = SchemaField(
+                            schema_id=schema.id,
+                            field_name=suggested_field['field_name'],
+                            field_type=suggested_field.get('field_type', 'string'),
+                            is_required=False,
+                            description='Added in new version',
+                            order_index=max_order + idx + 1
+                        )
+                        db.session.add(new_field)
+                        added_fields.append(suggested_field['field_name'])
+                
+                db.session.commit()
+                
+                # Log the change
+                from ..models import ChangeLog
+                change_log = ChangeLog(
+                    schema_id=schema.id,
+                    change_type='version_created',
+                    description=f"Created new version {new_version} with {len(original_schema.fields)} original fields + {len(added_fields)} new field(s)",
+                    change_details={
+                        'parent_schema_id': original_schema.id,
+                        'parent_schema_name': original_schema.name,
+                        'added_fields': added_fields,
+                        'total_fields_in_version': len(original_schema.fields) + len(added_fields)
+                    },
+                    changed_by=user_id
+                )
+                db.session.add(change_log)
+                db.session.commit()
+                print(f"✓ CREATED NEW VERSION OF SCHEMA: {schema.name} (ID: {schema.id}), Total fields: {len(original_schema.fields) + len(added_fields)}")
+            
+            elif choice_action == 'create_new':
+                # User chose to create a completely new schema
+                schema = None  # Will be created below
+                print(f"✓ CREATING COMPLETELY NEW SCHEMA")
+        
+        # If no schema yet, create a new one (either no choice made or create_new was selected)
+        if not schema:
+            if schema_id:
+                schema = SchemaModel.query.get(schema_id)
+                if not schema:
+                    return jsonify({'error': 'Schema not found'}), 404
+            else:
+                # Auto-create schema from suggested fields
+                if not suggested_fields:
+                    # Infer fields from first record
+                    if records_data:
+                        suggested_fields = []
+                        for key, value in records_data[0].items():
+                            field_type = 'string'
+                            if isinstance(value, bool):
+                                field_type = 'boolean'
+                            elif isinstance(value, int):
+                                field_type = 'integer'
+                            elif isinstance(value, float):
+                                field_type = 'float'
+                            suggested_fields.append({
+                                'field_name': key,
+                                'field_type': field_type,
+                                'is_required': False
+                            })
+                
+                # Determine asset type
+            final_asset_type_id = asset_type_id
+            if not final_asset_type_id:
+                from ..models import AssetType
+                other_type = AssetType.query.filter_by(name='Other').first()
+                final_asset_type_id = other_type.id if other_type else 8
+            
+            # Generate unique schema name from record_name or data
+            if record_name and record_name.strip():
+                # Use record name as base for schema name
+                base_name = record_name.strip().replace('_', ' ').replace('-', ' ').title()
+                schema_name = f"{base_name} Schema"
+            else:
+                # Fallback: generate from first record data or timestamp
+                if first_record:
+                    name_field = first_record.get('name') or first_record.get('title') or first_record.get('product_name')
+                    if name_field:
+                        clean_name = ''.join(c if c.isalnum() else '_' for c in str(name_field)[:30])
+                        schema_name = f"{clean_name} Schema"
+                    else:
+                        schema_name = f"Dataset_{datetime.now().strftime('%Y%m%d_%H%M%S')} Schema"
+                else:
+                    schema_name = f"Dataset_{datetime.now().strftime('%Y%m%d_%H%M%S')} Schema"
+            
+            # Create schema
+            schema = SchemaModel(
+                name=schema_name,
+                version=1,
+                asset_type_id=int(final_asset_type_id),
+                schema_json={},
+                created_by=user_id,
+                allow_additional_fields=True
+            )
+            db.session.add(schema)
+            db.session.flush()
+            
+            # Add fields
+            for idx, field_def in enumerate(suggested_fields):
+                field = SchemaField(
+                    schema_id=schema.id,
+                    field_name=field_def['field_name'],
+                    field_type=field_def.get('field_type', 'string'),
+                    is_required=field_def.get('is_required', False),
+                    description='Auto-generated',
+                    order_index=idx
+                )
+                db.session.add(field)
+            
+            db.session.commit()
+        
+        # Apply field mapping if provided to all records
+        if field_mapping:
+            mapped_records = []
+            for record_data in records_data:
+                mapped_data = {}
+                for data_field, value in record_data.items():
+                    schema_field = field_mapping.get(data_field, data_field)
+                    mapped_data[schema_field] = value
+                mapped_records.append(mapped_data)
+            records_data = mapped_records
+        
+        # Create ONE metadata record (container for the dataset)
+        record = MetadataRecord(
+            name=record_name,
+            schema_id=schema.id,
+            asset_type_id=asset_type_id,
+            tag=tag,
+            created_by=user_id,
+            metadata_json={
+                'total_rows': len(records_data),
+                'imported_at': datetime.utcnow().isoformat(),
+                'source': 'file_import'
+            }
+        )
+        db.session.add(record)
+        db.session.flush()  # Get record.id
+        
+        # Store each row in data_rows table (NEW APPROACH - ACID compliant)
+        from ..models import DataRow
+        for idx, row_data in enumerate(records_data):
+            data_row = DataRow(
+                record_id=record.id,
+                row_index=idx + 1,
+                data=row_data  # PostgreSQL will store as JSONB
+            )
+            db.session.add(data_row)
+        
+        db.session.commit()
+        
+        print(f"✓ STORED {len(records_data)} ROWS IN data_rows TABLE FOR RECORD {record.id}\n")
+        
+        return jsonify({
+            'success': True,
+            'record_id': record.id,
+            'record_name': record.name,
+            'total_rows': len(records_data),
+            'storage_type': 'table',
+            'message': f'Successfully imported {len(records_data)} rows into data_rows table with ACID properties'
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        error_msg = str(e) if e else 'Unknown error'
+        print(f"Import confirmation error: {error_msg}")
+        print(traceback.format_exc())
+        return jsonify({'error': f'Import confirmation error: {error_msg}'}), 500
+

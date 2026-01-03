@@ -39,7 +39,7 @@ def get_dashboard_stats():
     ).count()
     
     return jsonify({
-        "total_metadata_records": total_records,
+        "total_data_records": total_records,
         "total_schemas": total_schemas,
         "total_users": total_users,
         "total_asset_types": total_asset_types,
@@ -50,7 +50,30 @@ def get_dashboard_stats():
 @analytics_bp.route("/metadata-by-asset-type", methods=["GET"])
 @jwt_required()
 def get_metadata_by_asset_type():
-    """Get metadata count grouped by asset type"""
+    """Get metadata count grouped by asset type (deprecated, use /data-by-asset-type)"""
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+    
+    query = db.session.query(
+        AssetType.name,
+        func.count(MetadataRecord.id).label('count')
+    ).outerjoin(MetadataRecord, AssetType.id == MetadataRecord.asset_type_id)
+    
+    if user.role != 'admin':
+        query = query.filter(MetadataRecord.created_by == user_id)
+    
+    query = query.group_by(AssetType.name)
+    
+    result = [{"name": name or "Unassigned", "value": count} 
+              for name, count in query.all()]
+    
+    return jsonify(result)
+
+
+@analytics_bp.route("/data-by-asset-type", methods=["GET"])
+@jwt_required()
+def get_data_by_asset_type():
+    """Get data record count grouped by asset type"""
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     
@@ -73,7 +96,32 @@ def get_metadata_by_asset_type():
 @analytics_bp.route("/metadata-timeline", methods=["GET"])
 @jwt_required()
 def get_metadata_timeline():
-    """Get metadata creation over last 30 days"""
+    """Get metadata creation over last 30 days (deprecated, use /data-timeline)"""
+    user_id = int(get_jwt_identity())
+    user = User.query.get(user_id)
+    
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
+    
+    query = db.session.query(
+        func.date(MetadataRecord.created_at).label('date'),
+        func.count(MetadataRecord.id).label('count')
+    ).filter(MetadataRecord.created_at >= thirty_days_ago)
+    
+    if user.role != 'admin':
+        query = query.filter(MetadataRecord.created_by == user_id)
+    
+    query = query.group_by(func.date(MetadataRecord.created_at)).order_by('date')
+    
+    result = [{"date": date.isoformat(), "records": count} 
+              for date, count in query.all()]
+    
+    return jsonify(result)
+
+
+@analytics_bp.route("/data-timeline", methods=["GET"])
+@jwt_required()
+def get_data_timeline():
+    """Get data record creation over last 30 days"""
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
     

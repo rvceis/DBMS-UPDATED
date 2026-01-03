@@ -63,22 +63,40 @@ def create_template():
     # Validate required fields
     if not data.get('name'):
         return jsonify({'error': 'name is required'}), 400
-    if not data.get('schema_id'):
-        return jsonify({'error': 'schema_id is required'}), 400
     
-    # Verify schema exists
-    schema = SchemaModel.query.get(data['schema_id'])
-    if not schema:
-        return jsonify({'error': 'Schema not found'}), 404
+    # Support both legacy (single schema) and new (multi-table) modes
+    table_configs = data.get('table_configs')
+    schema_id = data.get('schema_id')
+    
+    if not table_configs and not schema_id:
+        return jsonify({'error': 'Either schema_id or table_configs is required'}), 400
+    
+    # If using multi-table mode, verify all schemas exist
+    if table_configs:
+        for config in table_configs:
+            schema = SchemaModel.query.get(config.get('schema_id'))
+            if not schema:
+                return jsonify({'error': f"Schema {config.get('schema_id')} not found"}), 404
+    
+    # If using legacy mode, verify schema exists
+    if schema_id and not table_configs:
+        schema = SchemaModel.query.get(schema_id)
+        if not schema:
+            return jsonify({'error': 'Schema not found'}), 404
     
     template = ReportTemplate(
         name=data['name'],
         description=data.get('description'),
-        schema_id=data['schema_id'],
+        schema_id=schema_id,
         asset_type_id=data.get('asset_type_id'),
+        table_configs=table_configs,
         query_config=data.get('query_config', {}),
         display_config=data.get('display_config', {}),
         pdf_config=data.get('pdf_config', {}),
+        include_records=data.get('include_records', True),
+        include_metadata=data.get('include_metadata', True),
+        include_schema_details=data.get('include_schema_details', False),
+        include_summary=data.get('include_summary', True),
         created_by=user_id,
         is_public=data.get('is_public', False)
     )
@@ -105,8 +123,9 @@ def update_template(template_id):
     
     data = request.get_json()
     
-    # Update allowed fields
-    for key in ['name', 'description', 'query_config', 'display_config', 'pdf_config', 'is_public']:
+    # Update allowed fields - include new content options
+    for key in ['name', 'description', 'query_config', 'display_config', 'pdf_config', 'is_public',
+                'table_configs', 'include_records', 'include_metadata', 'include_schema_details', 'include_summary']:
         if key in data:
             setattr(template, key, data[key])
     
@@ -137,7 +156,7 @@ def delete_template(template_id):
 @reports_bp.route('/generate', methods=['POST'])
 @jwt_required()
 def generate_report():
-    """Generate a report from template"""
+    """Generate a report from template with content options override"""
     user_id = int(get_jwt_identity())
     data = request.get_json()
     
@@ -154,6 +173,27 @@ def generate_report():
     # Verify template access
     template = ReportTemplate.query.get(template_id)
     if not template:
+        return jsonify({'error': 'Template not found'}), 404
+    
+    user = User.query.get(user_id)
+    if not template.is_public and template.created_by != user_id and user.role != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    # Override content options if provided
+    if 'include_records' in data:
+        template.include_records = data['include_records']
+    if 'include_metadata' in data:
+        template.include_metadata = data['include_metadata']
+    if 'include_schema_details' in data:
+        template.include_schema_details = data['include_schema_details']
+    if 'include_summary' in data:
+        template.include_summary = data['include_summary']
+    
+    try:
+        execution = report_gen.generate_report(template_id, format_type, user_id, params)
+        return jsonify(execution.to_dict()), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
         return jsonify({'error': 'Template not found'}), 404
     
     user = User.query.get(user_id)
@@ -214,7 +254,7 @@ def generate_records_report():
     try:
         from .metadata import MetadataRecord
         from ..services.report_export_service import ReportExportService
-        import os, time
+        import os, time, json
         from datetime import datetime
         
         # Fetch all records
@@ -261,21 +301,66 @@ def generate_records_report():
                 all_fields = set()
                 for schema_id, schema_records in records_by_schema.items():
                     for record in schema_records:
-                        row = {
-                            'id': record.id,
-                            'name': record.name,
-                            'schema_id': record.schema_id,
-                            'created_at': record.created_at.isoformat() if record.created_at else None,
-                        }
-                        for fv in record.field_values:
-                            field_name = fv.schema_field.field_name
-                            row[field_name] = fv.get_value()
-                            all_fields.add(field_name)
-                        all_data.append(row)
+                        # Check if data is in data_rows table (new approach)
+                        from ..models import DataRow
+                        data_rows = DataRow.query.filter_by(record_id=record.id).all()
+                        
+                        if data_rows:
+                            # Data stored in separate table (NEW APPROACH)
+                            for data_row in data_rows:
+                                row = {
+                                    'record_id': record.id,
+                                    'record_name': record.name,
+                                    'row_index': data_row.row_index,
+                                    'schema_id': record.schema_id,
+                                    'created_at': record.created_at.isoformat() if record.created_at else None,
+                                }
+                                if isinstance(data_row.data, dict):
+                                    row.update(data_row.data)
+                                    all_fields.update(data_row.data.keys())
+                                all_data.append(row)
+                        else:
+                            # Fallback to JSON storage (legacy)
+                            record_data = record.raw_data or record.metadata_json or {}
+                            if isinstance(record_data, str):
+                                try:
+                                    record_data = json.loads(record_data)
+                                except:
+                                    record_data = {}
+                            
+                            # Handle array format (bulk import) vs single object
+                            if isinstance(record_data, list):
+                                for idx, row_data in enumerate(record_data):
+                                    if isinstance(row_data, dict):
+                                        row = {
+                                            'record_id': record.id,
+                                            'record_name': record.name,
+                                            'row_index': idx + 1,
+                                            'schema_id': record.schema_id,
+                                            'created_at': record.created_at.isoformat() if record.created_at else None,
+                                        }
+                                        row.update(row_data)
+                                        all_fields.update(row_data.keys())
+                                        all_data.append(row)
+                            elif isinstance(record_data, dict):
+                                row = {
+                                    'id': record.id,
+                                    'name': record.name,
+                                    'schema_id': record.schema_id,
+                                    'created_at': record.created_at.isoformat() if record.created_at else None,
+                                }
+                                row.update(record_data)
+                                all_fields.update(record_data.keys())
+                                all_data.append(row)
                 
                 # Sort fields consistently
                 fields = sorted(list(all_fields))
-                filepath = exporter.export_csv(all_data, ['id', 'name', 'schema_id', 'created_at'] + fields, filename)
+                # Adjust header for array format
+                if all_data and 'row_index' in all_data[0]:
+                    header = ['record_id', 'record_name', 'row_index', 'schema_id', 'created_at'] + fields
+                else:
+                    header = ['id', 'name', 'schema_id', 'created_at'] + fields
+                filepath = exporter.export_csv(all_data, header, filename)
             
             else:  # PDF
                 # For PDF, create separate tables per schema
@@ -294,17 +379,56 @@ def generate_records_report():
                     schema_fields = set()
                     
                     for record in schema_records:
-                        row = {
-                            'id': record.id,
-                            'name': record.name,
-                            'created_at': record.created_at.isoformat() if record.created_at else None,
-                        }
-                        for fv in record.field_values:
-                            field_name = fv.schema_field.field_name
-                            row[field_name] = fv.get_value()
-                            schema_fields.add(field_name)
-                        schema_data.append(row)
+                        # Check if data is in data_rows table (new approach)
+                        from ..models import DataRow
+                        data_rows = DataRow.query.filter_by(record_id=record.id).all()
+                        
+                        if data_rows:
+                            # Data stored in separate table (NEW APPROACH)
+                            for data_row in data_rows:
+                                row = {
+                                    'record_id': record.id,
+                                    'record_name': record.name,
+                                    'row_index': data_row.row_index,
+                                    'created_at': record.created_at.isoformat() if record.created_at else None,
+                                }
+                                if isinstance(data_row.data, dict):
+                                    row.update(data_row.data)
+                                    schema_fields.update(data_row.data.keys())
+                                schema_data.append(row)
+                        else:
+                            # Fallback to JSON storage (legacy)
+                            record_data = record.raw_data or record.metadata_json or {}
+                            if isinstance(record_data, str):
+                                try:
+                                    record_data = json.loads(record_data)
+                                except:
+                                    record_data = {}
+                            
+                            # Handle array format (bulk import) vs single object
+                            if isinstance(record_data, list):
+                                for idx, row_data in enumerate(record_data):
+                                    if isinstance(row_data, dict):
+                                        row = {
+                                            'record_id': record.id,
+                                            'record_name': record.name,
+                                            'row_index': idx + 1,
+                                            'created_at': record.created_at.isoformat() if record.created_at else None,
+                                        }
+                                        row.update(row_data)
+                                        schema_fields.update(row_data.keys())
+                                        schema_data.append(row)
+                            elif isinstance(record_data, dict):
+                                row = {
+                                    'id': record.id,
+                                    'name': record.name,
+                                    'created_at': record.created_at.isoformat() if record.created_at else None,
+                                }
+                                row.update(record_data)
+                                schema_fields.update(record_data.keys())
+                                schema_data.append(row)
                     
+                    # Add schema data to PDF
                     pdf_data.append({
                         'schema_name': schema.name,
                         'fields': sorted(list(schema_fields)),

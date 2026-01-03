@@ -7,7 +7,7 @@ import { Login } from '@/pages/Login';
 import { Register } from '@/pages/Register';
 import { Dashboard } from '@/pages/Dashboard';
 import { Schemas } from '@/pages/Schemas';
-import { Metadata } from '@/pages/Metadata';
+import DataPage from '@/pages/DataPage';
 import { AssetTypes } from '@/pages/AssetTypes';
 import { Analytics } from '@/pages/Analytics';
 import { Users } from '@/pages/Users';
@@ -85,7 +85,7 @@ export function App() {
                     <Route path="/asset-types" element={<AssetTypes />} />
                     <Route path="/analytics" element={<Analytics />} />
                     <Route path="/users" element={<Users />} />
-                    <Route path="/metadata" element={<Metadata />} />
+                    <Route path="/data" element={<DataPage />} />
                     <Route path="/reports/templates" element={<ReportTemplates />} />
                     <Route path="/reports/builder" element={<ReportBuilder />} />
                     <Route path="/reports/history" element={<ReportHistory />} />

@@ -57,6 +57,14 @@ def create_schema_from_metadata(
     allow_additional_fields: bool = True,
 ) -> SchemaModel:
     """Create a dynamic schema using SchemaManager based on metadata keys and inferred types."""
+    
+    # Validate inputs
+    if not name or not name.strip():
+        from datetime import datetime
+        name = f"Schema_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    
+    if not asset_type_id:
+        raise ValueError("asset_type_id is required and cannot be None")
     from .schema_manager import SchemaManager
 
 

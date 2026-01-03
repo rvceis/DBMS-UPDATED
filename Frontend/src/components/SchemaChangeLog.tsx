@@ -42,10 +42,22 @@ export function SchemaChangeLog({ schemaId }: { schemaId: number }) {
                   )}
                 </Stack>
                 <Typography variant="body2">{log.description}</Typography>
-                {log.change_details && (
-                  <pre style={{ fontSize: 12, background: '#f5f5f5', padding: 8, borderRadius: 4, margin: 0 }}>
-                    {JSON.stringify(log.change_details, null, 2)}
-                  </pre>
+                {log.change_details && log.change_details.changes && log.change_details.changes.length > 0 && (
+                  <Stack spacing={0.5} sx={{ mt: 1, pl: 2 }}>
+                    {log.change_details.changes.map((change: string, idx: number) => (
+                      <Typography 
+                        key={idx} 
+                        variant="body2" 
+                        sx={{ 
+                          fontFamily: 'monospace', 
+                          fontSize: 12,
+                          color: 'text.secondary'
+                        }}
+                      >
+                        → {change}
+                      </Typography>
+                    ))}
+                  </Stack>
                 )}
               </Stack>
             ))}

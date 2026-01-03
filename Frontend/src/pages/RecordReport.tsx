@@ -19,12 +19,12 @@ import {
   Chip,
 } from '@mui/material';
 import { Download, FileText, FileType } from 'lucide-react';
-import { useMetadataStore } from '@/stores/metadataStore';
+import { useDataStore } from '@/stores/dataStore';
 import { useReportStore } from '@/stores/reportStore';
 import toast from 'react-hot-toast';
 
 export const RecordReport = () => {
-  const { records, fetchRecords, loading } = useMetadataStore();
+  const { records, fetchRecords, loading } = useDataStore();
   const { downloadReport } = useReportStore();
   const [selectedRecords, setSelectedRecords] = useState<Set<number>>(new Set());
   const [reportName, setReportName] = useState('Records Report');
@@ -104,7 +104,7 @@ export const RecordReport = () => {
           Generate Report from Records
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          Select multiple metadata records to generate a combined PDF/CSV report. Records with different schemas will have separate tables.
+          Select multiple data records to generate a combined PDF/CSV report. Records with different schemas will have separate tables.
         </Typography>
       </Box>
 
@@ -166,7 +166,7 @@ export const RecordReport = () => {
       ) : records.length === 0 ? (
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 4 }}>
-            <Typography color="text.secondary">No metadata records found</Typography>
+            <Typography color="text.secondary">No data records found</Typography>
           </CardContent>
         </Card>
       ) : (

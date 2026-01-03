@@ -21,7 +21,10 @@ def register():
     user = User(username=username, email=email, password_hash=generate_password_hash(password), role=role)
     db.session.add(user)
     db.session.commit()
-    token = create_access_token(identity=str(user.id), additional_claims={"role": user.role, "email": user.email})
+    token = create_access_token(
+        identity=str(user.id), 
+        additional_claims={"role": user.role, "email": user.email}
+    )
     return jsonify({"user": user.to_dict(), "access_token": token}), 201
 
 
@@ -35,5 +38,8 @@ def login():
     user = User.query.filter_by(email=email).first()
     if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"error": "invalid credentials"}), 401
-    token = create_access_token(identity=str(user.id), additional_claims={"role": user.role, "email": user.email})
+    token = create_access_token(
+        identity=str(user.id), 
+        additional_claims={"role": user.role, "email": user.email}
+    )
     return jsonify({"user": user.to_dict(), "access_token": token})

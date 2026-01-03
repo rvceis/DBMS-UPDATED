@@ -36,9 +36,10 @@ import toast from 'react-hot-toast';
 import { ConstraintBuilder } from '@/components/common/ConstraintBuilder';
 import { ExtractMetadataDialog } from '@/components/common/ExtractMetadataDialog';
 import { SchemaChangeLog } from '@/components/SchemaChangeLog';
+import SchemaContentViewer from '@/components/SchemaContentViewer';
 
 export const Schemas = () => {
-  const { schemas, fetchSchemas, createSchema, updateSchema, selectedSchema, selectSchema, addField, updateField, deleteField } =
+  const { schemas, fetchSchemas, createSchema, updateSchema, deleteSchema, selectedSchema, selectSchema, addField, updateField, deleteField } =
     useSchemaStore();
   const { assetTypes, fetchAssetTypes } = useAssetTypesStore();
   const [openDialog, setOpenDialog] = useState(false);
@@ -116,6 +117,33 @@ export const Schemas = () => {
     }
   };
 
+  const handleDeleteSchema = async (schemaId: number, schemaName: string, recordCount: number) => {
+    const confirmed = window.confirm(
+      `⚠️ DELETE SCHEMA: "${schemaName}"?\n\n` +
+      `This will CASCADE DELETE:\n` +
+      `• ${recordCount} metadata records\n` +
+      `• All data rows in those records\n` +
+      `• All field values\n\n` +
+      `This action CANNOT be undone!\n\n` +
+      `Type the schema name to confirm: "${schemaName}"`
+    );
+    
+    if (!confirmed) return;
+    
+    const typedName = prompt(`Type "${schemaName}" to confirm deletion:`);
+    if (typedName !== schemaName) {
+      toast.error('Schema name did not match. Deletion cancelled.');
+      return;
+    }
+    
+    try {
+      await deleteSchema(schemaId);
+      toast.success(`Schema "${schemaName}" and ${recordCount} related records deleted`);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete schema');
+    }
+  };
+
   const filteredSchemas = schemas.filter((s) => s.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
@@ -189,11 +217,27 @@ export const Schemas = () => {
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {selectedSchema.name}
                     </Typography>
-                    <IconButton size="small" onClick={() => handleEditSchema(selectedSchema)}>
+                    <IconButton size="small" onClick={() => handleEditSchema(selectedSchema)} title="Edit schema name">
                       <Edit2 size={18} />
+                    </IconButton>
+                    <IconButton 
+                      size="small" 
+                      color="error"
+                      onClick={() => handleDeleteSchema(
+                        selectedSchema.id, 
+                        selectedSchema.name,
+                        selectedSchema.statistics?.record_count || 0
+                      )}
+                      title="Delete schema (CASCADE)"
+                    >
+                      <Trash2 size={18} />
                     </IconButton>
                   </Stack>
                   <Stack direction="row" spacing={1}>
+                    <SchemaContentViewer 
+                      schemaId={selectedSchema.id} 
+                      schemaName={selectedSchema.name}
+                    />
                     <Button
                       size="small"
                       startIcon={<Plus size={16} />}

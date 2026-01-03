@@ -380,8 +380,9 @@ class SchemaManager:
                 
                 # Update other properties
                 if new_required is not None and new_required != field.is_required:
+                    old_required = field.is_required
                     field.is_required = new_required
-                    changes.append(f"required: {field.is_required} → {new_required}")
+                    changes.append(f"required: {old_required} → {new_required}")
                 
                 if new_constraints is not None:
                     field.constraints = new_constraints

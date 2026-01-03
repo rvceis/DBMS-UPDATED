@@ -110,3 +110,44 @@ def get_all_logs():
             "timestamp": log.timestamp.isoformat() if log.timestamp else None
         })
     return jsonify(result)
+
+
+@schemas_bp.route("/<int:schema_id>", methods=["DELETE"])
+@jwt_required()
+def delete_schema(schema_id):
+    """Delete schema and all related records (CASCADE)"""
+    from flask_jwt_extended import get_jwt
+    from ..models import MetadataRecord
+    
+    claims = get_jwt()
+    if claims.get("role") != "admin":
+        return jsonify({"error": "admin required"}), 403
+    
+    schema = SchemaModel.query.get(schema_id)
+    if not schema:
+        return jsonify({"error": "schema not found"}), 404
+    
+    # Save schema name before deletion
+    schema_name = schema.name
+    
+    # Count related records
+    record_count = MetadataRecord.query.filter_by(schema_id=schema_id).count()
+    
+    try:
+        # Delete schema (CASCADE will delete all related records, fields, logs)
+        db.session.delete(schema)
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": f"Schema '{schema_name}' deleted",
+            "records_deleted": record_count
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        import traceback
+        print(f"\n❌ ERROR DELETING SCHEMA {schema_id}:")
+        traceback.print_exc()
+        print(f"Exception type: {type(e).__name__}")
+        print(f"Exception message: {str(e)}\n")
+        return jsonify({"error": f"Failed to delete schema: {str(e)}"}), 500

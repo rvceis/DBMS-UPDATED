@@ -200,12 +200,19 @@ export const useReportStore = create<ReportState>((set, get) => ({
         headers: buildHeaders(true),
         body: JSON.stringify({ template_id: templateId, format, params }),
       });
-      if (!response.ok) throw new Error('Failed to generate report');
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 400 && errorData.error?.includes('not properly configured')) {
+          throw new Error(`${errorData.error} Please use "Generate Now" to create a report directly, or configure the template first.`);
+        }
+        throw new Error(errorData.error || 'Failed to generate report');
+      }
       const result = await response.json();
       set({ loading: false });
       return result;
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      const message = (error as Error).message;
+      set({ error: message, loading: false });
       throw error;
     }
   },

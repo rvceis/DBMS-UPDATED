@@ -1,0 +1,64 @@
+# Version 2: Add maintenance records + equipment relationships
+sensor_id: TEMP_001
+location: Building_A_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 22.5
+status: active
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-12-15
+maintenance_next_date: 2025-03-15
+equipment_model: ThermoSense-3000
+equipment_serial: TS3K-2024-001
+
+---
+
+sensor_id: TEMP_002
+location: Building_A_Floor_2
+timestamp: 2025-01-01T08:00:00
+temperature: 21.8
+status: active
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-11-20
+maintenance_next_date: 2025-02-20
+equipment_model: ThermoSense-2500
+equipment_serial: TS2.5K-2024-002
+
+---
+
+sensor_id: HUMID_001
+location: Building_A_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 45.2
+status: active
+maintenance_schedule: semi-annual
+maintenance_last_date: 2024-07-10
+maintenance_next_date: 2025-01-10
+equipment_model: HumidityPro-100
+equipment_serial: HP100-2024-001
+
+---
+
+sensor_id: TEMP_003
+location: Building_B_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 23.1
+status: inactive
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-10-01
+maintenance_next_date: 2025-01-01
+equipment_model: ThermoSense-2500
+equipment_serial: TS2.5K-2024-003
+failure_reason: Sensor calibration drift
+
+---
+
+sensor_id: HUMID_002
+location: Building_B_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 52.0
+status: active
+maintenance_schedule: semi-annual
+maintenance_last_date: 2024-09-05
+maintenance_next_date: 2025-03-05
+equipment_model: HumidityPro-100
+equipment_serial: HP100-2024-002

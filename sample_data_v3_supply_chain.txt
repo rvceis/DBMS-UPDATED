@@ -1,0 +1,106 @@
+shipment_id: SHIP-2025-001
+order_id: ORD-001
+status: In Transit
+origin_location: Warehouse A, Mumbai
+destination_location: Distribution Center, Delhi
+shipping_date: 2025-01-01T10:00:00Z
+expected_delivery: 2025-01-05T18:00:00Z
+
+items_shipped:
+  - item_code: ITEM-SKU-001
+    product_name: Widget A
+    quantity: 500
+    weight_kg: 1500
+
+  - item_code: ITEM-SKU-002
+    product_name: Widget B
+    quantity: 300
+    weight_kg: 900
+
+tracking_events:
+  - event_type: Pickup
+    timestamp: 2025-01-01T10:30:00Z
+    location: Warehouse A
+    notes: Goods collected from warehouse
+
+  - event_type: In Transit
+    timestamp: 2025-01-02T14:00:00Z
+    location: Highway junction
+    notes: En route to destination
+
+  - event_type: At Gateway
+    timestamp: 2025-01-04T08:00:00Z
+    location: Distribution Center Gate
+    notes: Arrived at destination facility
+
+vendor_info:
+  vendor_id: VEN-101
+  vendor_name: ABC Suppliers Ltd
+  vendor_email: sales@abcsuppliers.com
+  contact_person: Rajesh Kumar
+
+---
+
+shipment_id: SHIP-2025-002
+order_id: ORD-002
+status: Delivered
+origin_location: Warehouse B, Bangalore
+destination_location: Retail Store, Hyderabad
+shipping_date: 2025-01-02T06:00:00Z
+expected_delivery: 2025-01-04T18:00:00Z
+
+items_shipped:
+  - item_code: ITEM-SKU-003
+    product_name: Gadget X
+    quantity: 100
+    weight_kg: 200
+
+  - item_code: ITEM-SKU-004
+    product_name: Gadget Y
+    quantity: 150
+    weight_kg: 350
+
+tracking_events:
+  - event_type: Pickup
+    timestamp: 2025-01-02T06:45:00Z
+    location: Warehouse B
+    notes: All items scanned and verified
+
+  - event_type: Delivered
+    timestamp: 2025-01-04T16:30:00Z
+    location: Retail Store, Hyderabad
+    notes: Received and signed by store manager
+
+vendor_info:
+  vendor_id: VEN-102
+  vendor_name: XYZ Manufacturing
+  vendor_email: logistics@xyzmanufacturing.com
+  contact_person: Priya Sharma
+
+---
+
+shipment_id: SHIP-2025-003
+order_id: ORD-003
+status: Processing
+origin_location: Warehouse A, Mumbai
+destination_location: Corporate Office, Pune
+shipping_date: 2025-01-05T00:00:00Z
+expected_delivery: 2025-01-06T12:00:00Z
+
+items_shipped:
+  - item_code: ITEM-SKU-005
+    product_name: Component Z
+    quantity: 1000
+    weight_kg: 500
+
+tracking_events:
+  - event_type: Processing
+    timestamp: 2025-01-05T08:00:00Z
+    location: Warehouse A
+    notes: Items being prepared for shipment
+
+vendor_info:
+  vendor_id: VEN-101
+  vendor_name: ABC Suppliers Ltd
+  vendor_email: sales@abcsuppliers.com
+  contact_person: Rajesh Kumar

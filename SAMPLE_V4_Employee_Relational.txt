@@ -1,0 +1,95 @@
+employee_id: EMP-001
+employee_name: John Smith
+department: Engineering
+job_title: Senior HVAC Technician
+employment_status: full_time
+hire_date: 2020-05-10
+certification_level: 5
+
+certifications:
+  - cert_id: EPA-604
+    cert_name: EPA Section 608 Universal Certification
+    issue_date: 2020-03-15
+    expiry_date: 2025-03-15
+    issuing_body: EPA
+
+certifications:
+  - cert_id: NATE-HT
+    cert_name: NATE Heating Technician
+    issue_date: 2021-06-20
+    expiry_date: 2026-06-20
+    issuing_body: NATE
+
+work_assignments:
+  - assignment_id: ASSIGN-001
+    facility_id: FAC-HVAC-01
+    assignment_type: Maintenance
+    assigned_date: 2025-01-01
+    hours_allocated: 40
+    priority: high
+    completion_status: in_progress
+
+work_assignments:
+  - assignment_id: ASSIGN-002
+    facility_id: FAC-HVAC-02
+    assignment_type: Emergency_Repair
+    assigned_date: 2025-01-04
+    hours_allocated: 16
+    priority: critical
+    completion_status: pending
+
+skills:
+  - hvac_repair_and_maintenance
+  - electrical_troubleshooting
+  - refrigerant_recovery
+  - system_commissioning
+  - preventive_maintenance
+
+---
+
+employee_id: EMP-002
+employee_name: Sarah Johnson
+department: Facilities
+job_title: HVAC System Operator
+employment_status: full_time
+hire_date: 2019-08-25
+certification_level: 3
+
+certifications:
+  - cert_id: EPA-608
+    cert_name: EPA Section 608 Type II Certification
+    issue_date: 2019-09-10
+    expiry_date: 2024-09-10
+    issuing_body: EPA
+
+certifications:
+  - cert_id: BMS-CERT
+    cert_name: Building Management System Certification
+    issue_date: 2022-02-14
+    expiry_date: 2025-02-14
+    issuing_body: ASHRAE
+
+work_assignments:
+  - assignment_id: ASSIGN-003
+    facility_id: FAC-HVAC-01
+    assignment_type: Monitoring
+    assigned_date: 2025-01-01
+    hours_allocated: 30
+    priority: medium
+    completion_status: active
+
+work_assignments:
+  - assignment_id: ASSIGN-004
+    facility_id: FAC-HVAC-02
+    assignment_type: Inspection
+    assigned_date: 2025-01-02
+    hours_allocated: 8
+    priority: high
+    completion_status: completed
+
+skills:
+  - system_monitoring
+  - energy_optimization
+  - preventive_maintenance
+  - documentation
+  - building_automation

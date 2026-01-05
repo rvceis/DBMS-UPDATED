@@ -1,0 +1,170 @@
+project_id: PROJ-2025-001
+project_name: Facility Management System Migration
+project_status: active
+start_date: 2025-01-01
+estimated_completion: 2025-06-30
+budget_usd: 250000
+
+project_phases:
+  - phase_id: PHASE-001
+    phase_name: Requirements & Planning
+    status: completed
+    start_date: 2025-01-01
+    end_date: 2025-01-15
+    completion_percent: 100
+    team_size: 5
+    dependencies: []
+
+project_phases:
+  - phase_id: PHASE-002
+    phase_name: System Design
+    status: in_progress
+    start_date: 2025-01-16
+    end_date: 2025-02-28
+    completion_percent: 45
+    team_size: 8
+    dependencies:
+      - PHASE-001
+
+project_phases:
+  - phase_id: PHASE-003
+    phase_name: Development & Integration
+    status: pending
+    start_date: 2025-03-01
+    end_date: 2025-05-15
+    completion_percent: 0
+    team_size: 12
+    dependencies:
+      - PHASE-002
+
+project_phases:
+  - phase_id: PHASE-004
+    phase_name: Testing & Deployment
+    status: pending
+    start_date: 2025-05-16
+    end_date: 2025-06-30
+    completion_percent: 0
+    team_size: 6
+    dependencies:
+      - PHASE-003
+
+assigned_team_members:
+  - member_id: EMP-001
+    role: Technical Lead
+    contribution_percent: 50
+    areas_of_responsibility:
+      - HVAC Integration
+      - System Architecture
+
+assigned_team_members:
+  - member_id: EMP-002
+    role: Operations Lead
+    contribution_percent: 40
+    areas_of_responsibility:
+      - Facility Coordination
+      - Data Validation
+
+milestones:
+  - milestone_id: MS-001
+    milestone_name: Architecture Approved
+    target_date: 2025-02-15
+    status: in_progress
+    blocked: false
+
+milestones:
+  - milestone_id: MS-002
+    milestone_name: Development Complete
+    target_date: 2025-05-15
+    status: pending
+    blocked: false
+
+risks:
+  - risk_id: RISK-001
+    risk_description: Integration complexity with legacy systems
+    severity: high
+    probability_percent: 60
+    mitigation_strategy: Early prototype development with stakeholders
+
+risks:
+  - risk_id: RISK-002
+    risk_description: Skill gap in team
+    severity: medium
+    probability_percent: 40
+    mitigation_strategy: External training and consultant support
+
+---
+
+project_id: PROJ-2025-002
+project_name: Building Automation Upgrade
+project_status: planning
+start_date: 2025-02-01
+estimated_completion: 2025-09-30
+budget_usd: 500000
+
+project_phases:
+  - phase_id: PHASE-005
+    phase_name: Site Assessment
+    status: pending
+    start_date: 2025-02-01
+    end_date: 2025-02-28
+    completion_percent: 0
+    team_size: 3
+    dependencies: []
+
+project_phases:
+  - phase_id: PHASE-006
+    phase_name: Equipment Procurement
+    status: pending
+    start_date: 2025-03-01
+    end_date: 2025-04-30
+    completion_percent: 0
+    team_size: 2
+    dependencies:
+      - PHASE-005
+
+project_phases:
+  - phase_id: PHASE-007
+    phase_name: Installation & Commissioning
+    status: pending
+    start_date: 2025-05-01
+    end_date: 2025-08-31
+    completion_percent: 0
+    team_size: 10
+    dependencies:
+      - PHASE-006
+
+assigned_team_members:
+  - member_id: EMP-002
+    role: Project Manager
+    contribution_percent: 100
+    areas_of_responsibility:
+      - Overall Coordination
+      - Vendor Management
+
+milestones:
+  - milestone_id: MS-003
+    milestone_name: Equipment Ordered
+    target_date: 2025-03-15
+    status: pending
+    blocked: false
+
+milestones:
+  - milestone_id: MS-004
+    milestone_name: Installation Start
+    target_date: 2025-05-01
+    status: pending
+    blocked: false
+
+risks:
+  - risk_id: RISK-003
+    risk_description: Supply chain delays
+    severity: medium
+    probability_percent: 50
+    mitigation_strategy: Multiple vendor relationships
+
+risks:
+  - risk_id: RISK-004
+    risk_description: Downtime during switchover
+    severity: high
+    probability_percent: 75
+    mitigation_strategy: Phased rollout by building

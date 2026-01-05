@@ -1,0 +1,215 @@
+course_id: COURSE-CS101
+course_name: Data Structures and Algorithms
+semester: Spring 2025
+department: Computer Science
+instructor_id: PROF-001
+instructor_name: Dr. Amit Saxena
+credits: 4
+max_students: 45
+status: Active
+created_date: 2024-12-01
+
+course_details:
+  description: Comprehensive study of data structures and algorithmic problem solving
+  mode: Hybrid
+  venue: Room 301, Building A / Online
+  start_date: 2025-01-06
+  end_date: 2025-05-10
+
+enrolled_students:
+  - student_id: STU-001
+    student_name: Rohan Singh
+    enrollment_date: 2024-12-20
+    status: Active
+  - student_id: STU-002
+    student_name: Neha Patel
+    enrollment_date: 2024-12-22
+    status: Active
+  - student_id: STU-003
+    student_name: Arjun Gupta
+    enrollment_date: 2024-12-25
+    status: Active
+
+course_schedule:
+  - session_number: 1
+    date: 2025-01-06
+    topic: Introduction to Big O Notation
+    session_type: Lecture
+    duration_hours: 2
+    location: Room 301, Building A
+
+  - session_number: 2
+    date: 2025-01-08
+    topic: Arrays and Linked Lists
+    session_type: Lecture and Lab
+    duration_hours: 3
+    location: Room 301 and Lab 105
+
+  - session_number: 3
+    date: 2025-01-13
+    topic: Sorting Algorithms
+    session_type: Lecture
+    duration_hours: 2
+    location: Online
+
+assignments:
+  - assignment_id: ASG-001
+    title: Analyze Big O Complexity
+    due_date: 2025-01-15
+    weight_percent: 10
+    status: Active
+
+  - assignment_id: ASG-002
+    title: Implement Sorting Algorithms
+    due_date: 2025-02-01
+    weight_percent: 15
+    status: Active
+
+assessments:
+  - assessment_name: Mid Semester Exam
+    date: 2025-03-01
+    duration_minutes: 120
+    weight_percent: 30
+    passing_score_percent: 40
+
+  - assessment_name: Final Project
+    date: 2025-05-05
+    duration_minutes: 240
+    weight_percent: 25
+    passing_score_percent: 40
+
+---
+
+course_id: COURSE-MATH201
+course_name: Calculus II
+semester: Spring 2025
+department: Mathematics
+instructor_id: PROF-002
+instructor_name: Dr. Priya Kapoor
+credits: 3
+max_students: 60
+status: Active
+created_date: 2024-12-01
+
+course_details:
+  description: Advanced calculus covering integration, sequences, and series
+  mode: In-person
+  venue: Hall 2, Science Building
+  start_date: 2025-01-07
+  end_date: 2025-05-15
+
+enrolled_students:
+  - student_id: STU-001
+    student_name: Rohan Singh
+    enrollment_date: 2024-12-21
+    status: Active
+  - student_id: STU-004
+    student_name: Deepak Verma
+    enrollment_date: 2024-12-20
+    status: Active
+  - student_id: STU-005
+    student_name: Pooja Desai
+    enrollment_date: 2024-12-23
+    status: Active
+
+course_schedule:
+  - session_number: 1
+    date: 2025-01-07
+    topic: Definite Integrals and Riemann Sums
+    session_type: Lecture
+    duration_hours: 1.5
+    location: Hall 2, Science Building
+
+  - session_number: 2
+    date: 2025-01-09
+    topic: Integration by Parts and Substitution
+    session_type: Lecture
+    duration_hours: 1.5
+    location: Hall 2, Science Building
+
+assignments:
+  - assignment_id: ASG-003
+    title: Integration Problems Set 1
+    due_date: 2025-01-20
+    weight_percent: 5
+    status: Active
+
+  - assignment_id: ASG-004
+    title: Series Convergence Analysis
+    due_date: 2025-02-10
+    weight_percent: 10
+    status: Active
+
+prerequisites:
+  - prerequisite_course: MATH101
+    prerequisite_name: Calculus I
+
+assessments:
+  - assessment_name: Midterm Examination
+    date: 2025-03-05
+    duration_minutes: 90
+    weight_percent: 25
+    passing_score_percent: 40
+
+  - assessment_name: Final Examination
+    date: 2025-05-12
+    duration_minutes: 120
+    weight_percent: 40
+    passing_score_percent: 40
+
+---
+
+course_id: COURSE-ENG301
+course_name: Technical Writing
+semester: Spring 2025
+department: English
+instructor_id: PROF-003
+instructor_name: Dr. Sarah Williams
+credits: 2
+max_students: 35
+status: Active
+created_date: 2024-12-02
+
+course_details:
+  description: Mastering technical documentation and professional communication
+  mode: Hybrid
+  venue: Room 201, Humanities Building / Online
+  start_date: 2025-01-08
+  end_date: 2025-04-20
+
+enrolled_students:
+  - student_id: STU-002
+    student_name: Neha Patel
+    enrollment_date: 2024-12-23
+    status: Active
+  - student_id: STU-006
+    student_name: Vikram Iyer
+    enrollment_date: 2024-12-20
+    status: Active
+
+course_schedule:
+  - session_number: 1
+    date: 2025-01-08
+    topic: Documentation Fundamentals
+    session_type: Lecture
+    duration_hours: 2
+    location: Room 201, Humanities Building
+
+projects:
+  - project_id: PROJ-001
+    title: Create User Manual
+    due_date: 2025-02-28
+    weight_percent: 30
+    requirements: 15+ pages, professional formatting
+
+  - project_id: PROJ-002
+    title: Technical Report Writing
+    due_date: 2025-04-10
+    weight_percent: 35
+    requirements: Research-based, 20+ pages
+
+assessments:
+  - assessment_name: Portfolio Review
+    date: 2025-04-15
+    weight_percent: 35
+    passing_score_percent: 50

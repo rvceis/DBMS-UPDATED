@@ -1,0 +1,93 @@
+employee_id: EMP-0001
+first_name: John
+last_name: Smith
+email: john.smith@company.com
+department: Engineering
+salary: 85000
+hire_date: 2020-03-15
+
+manager_info:
+  manager_id: MGR-001
+  manager_name: Alice Johnson
+  manager_email: alice.j@company.com
+
+team_members:
+  - member_id: EMP-0002
+    member_name: Bob Williams
+  - member_id: EMP-0003
+    member_name: Carol Davis
+
+projects_assigned:
+  - project_id: PROJ-101
+    project_name: Database Migration
+    role: Lead Developer
+  - project_id: PROJ-102
+    project_name: API Development
+    role: Senior Developer
+
+performance_metrics:
+  - review_period: 2024-Q4
+    rating: 4.5
+    feedback: Excellent work on system architecture
+
+---
+
+employee_id: EMP-0002
+first_name: Bob
+last_name: Williams
+email: bob.w@company.com
+department: Engineering
+salary: 72000
+hire_date: 2021-06-20
+
+manager_info:
+  manager_id: MGR-001
+  manager_name: Alice Johnson
+  manager_email: alice.j@company.com
+
+team_members: []
+
+projects_assigned:
+  - project_id: PROJ-101
+    project_name: Database Migration
+    role: Developer
+  - project_id: PROJ-103
+    project_name: Testing Framework
+    role: QA Lead
+
+performance_metrics:
+  - review_period: 2024-Q4
+    rating: 4.2
+    feedback: Good technical skills, needs improvement in communication
+
+---
+
+employee_id: EMP-0003
+first_name: Carol
+last_name: Davis
+email: carol.d@company.com
+department: Marketing
+salary: 65000
+hire_date: 2022-01-10
+
+manager_info:
+  manager_id: MGR-002
+  manager_name: David Chen
+  manager_email: david.c@company.com
+
+team_members:
+  - member_id: EMP-0004
+    member_name: Emma Wilson
+
+projects_assigned:
+  - project_id: PROJ-104
+    project_name: Brand Refresh
+    role: Campaign Manager
+  - project_id: PROJ-105
+    project_name: Social Media Strategy
+    role: Lead
+
+performance_metrics:
+  - review_period: 2024-Q4
+    rating: 4.8
+    feedback: Outstanding campaign results, great leadership

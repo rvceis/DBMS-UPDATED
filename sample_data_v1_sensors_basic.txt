@@ -1,0 +1,38 @@
+# Version 1: Basic Sensor Data (Initial schema)
+sensor_id: TEMP_001
+location: Building_A_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 22.5
+status: active
+
+---
+
+sensor_id: TEMP_002
+location: Building_A_Floor_2
+timestamp: 2025-01-01T08:00:00
+temperature: 21.8
+status: active
+
+---
+
+sensor_id: HUMID_001
+location: Building_A_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 45.2
+status: active
+
+---
+
+sensor_id: TEMP_003
+location: Building_B_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 23.1
+status: inactive
+
+---
+
+sensor_id: HUMID_002
+location: Building_B_Floor_1
+timestamp: 2025-01-01T08:00:00
+temperature: 52.0
+status: active

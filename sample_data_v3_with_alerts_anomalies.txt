@@ -1,0 +1,111 @@
+# Version 3: Add alerts + anomalies + data quality metrics
+sensor_id: TEMP_001
+location: Building_A_Floor_1
+building_ref_id: BLDG_A
+floor_number: 1
+timestamp: 2025-01-01T08:00:00
+temperature: 22.5
+status: active
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-12-15
+maintenance_next_date: 2025-03-15
+equipment_model: ThermoSense-3000
+equipment_serial: TS3K-2024-001
+alert_threshold_high: 28.0
+alert_threshold_low: 15.0
+current_alert_status: normal
+anomaly_detected: false
+data_quality_score: 0.98
+last_calibration: 2024-12-15
+battery_level: 87
+
+---
+
+sensor_id: TEMP_002
+location: Building_A_Floor_2
+building_ref_id: BLDG_A
+floor_number: 2
+timestamp: 2025-01-01T08:00:00
+temperature: 21.8
+status: active
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-11-20
+maintenance_next_date: 2025-02-20
+equipment_model: ThermoSense-2500
+equipment_serial: TS2.5K-2024-002
+alert_threshold_high: 28.0
+alert_threshold_low: 15.0
+current_alert_status: warning
+anomaly_detected: true
+anomaly_type: temperature_spike
+anomaly_severity: medium
+data_quality_score: 0.92
+last_calibration: 2024-11-20
+battery_level: 62
+
+---
+
+sensor_id: HUMID_001
+location: Building_A_Floor_1
+building_ref_id: BLDG_A
+floor_number: 1
+timestamp: 2025-01-01T08:00:00
+temperature: 45.2
+status: active
+maintenance_schedule: semi-annual
+maintenance_last_date: 2024-07-10
+maintenance_next_date: 2025-01-10
+equipment_model: HumidityPro-100
+equipment_serial: HP100-2024-001
+alert_threshold_high: 60.0
+alert_threshold_low: 30.0
+current_alert_status: normal
+anomaly_detected: false
+data_quality_score: 0.96
+last_calibration: 2024-07-10
+battery_level: 91
+
+---
+
+sensor_id: TEMP_003
+location: Building_B_Floor_1
+building_ref_id: BLDG_B
+floor_number: 1
+timestamp: 2025-01-01T08:00:00
+temperature: 23.1
+status: inactive
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-10-01
+maintenance_next_date: 2025-01-01
+equipment_model: ThermoSense-2500
+equipment_serial: TS2.5K-2024-003
+alert_threshold_high: 28.0
+alert_threshold_low: 15.0
+current_alert_status: critical
+failure_reason: Sensor calibration drift
+device_status_code: FAILED_CALIBRATION
+data_quality_score: 0.0
+last_calibration: 2024-10-01
+battery_level: 5
+
+---
+
+sensor_id: HUMID_002
+location: Building_B_Floor_1
+building_ref_id: BLDG_B
+floor_number: 1
+timestamp: 2025-01-01T08:00:00
+temperature: 52.0
+status: active
+maintenance_schedule: semi-annual
+maintenance_last_date: 2024-09-05
+maintenance_next_date: 2025-03-05
+equipment_model: HumidityPro-100
+equipment_serial: HP100-2024-002
+alert_threshold_high: 60.0
+alert_threshold_low: 30.0
+current_alert_status: normal
+anomaly_detected: false
+data_quality_score: 0.94
+last_calibration: 2024-09-05
+battery_level: 78

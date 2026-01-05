@@ -38,6 +38,8 @@ export const ReportBuilder = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [schemaId, setSchemaId] = useState<number | ''>('');
+  const [selectedSchemas, setSelectedSchemas] = useState<number[]>([]);
+  const [includeAllVersions, setIncludeAllVersions] = useState(false);
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [filters, setFilters] = useState<FilterDef[]>([]);
   const [format, setFormat] = useState<'csv' | 'pdf'>('csv');
@@ -100,7 +102,7 @@ export const ReportBuilder = () => {
         limit: 10000,
       };
 
-      const data = {
+      const data: any = {
         name,
         description,
         schema_id: schemaId as number,
@@ -112,6 +114,11 @@ export const ReportBuilder = () => {
         },
         is_public: isPublic,
       };
+
+      // Add include_all_versions flag to query_config
+      if (includeAllVersions) {
+        data.query_config.include_all_versions = true;
+      }
 
       if (templateId) {
         await updateTemplate(parseInt(templateId), data);
@@ -205,11 +212,28 @@ export const ReportBuilder = () => {
                   </MenuItem>
                   {schemas.map((schema) => (
                     <MenuItem key={schema.id} value={schema.id}>
-                      {schema.name}
+                      {schema.name} {schema.version ? `(v${schema.version})` : ''}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
+              
+              {schemaId && (
+                <Box sx={{ p: 2, bgcolor: 'info.lighter', borderRadius: 1, border: '1px solid', borderColor: 'info.light' }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={includeAllVersions}
+                        onChange={(e) => setIncludeAllVersions(e.target.checked)}
+                      />
+                    }
+                    label="Include all versions of this schema in the report"
+                  />
+                  <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
+                    📌 When enabled, the report will include data from all versions of the selected schema
+                  </Typography>
+                </Box>
+              )}
             </Stack>
           )}
 

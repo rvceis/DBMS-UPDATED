@@ -47,10 +47,11 @@ class ReportGenerator:
         # Support both legacy (single schema) and new (multi-table) modes
         if template.table_configs:
             return self._generate_multitable_report(template, format, user_id, params)
-        elif template.schema:
+        elif template.schema_id:
             return self._generate_single_table_report(template, format, user_id, params)
         else:
-            raise ValueError("Template has no associated schema or table configs")
+            raise ValueError(f"Template '{template.name}' (ID: {template_id}) has no associated schema or table configs. " +
+                           f"Please configure the template with either a schema_id or table_configs before generating reports.")
     
     def _generate_multitable_report(
         self,
@@ -198,33 +199,11 @@ class ReportGenerator:
     
     def _query_records(self, schema: SchemaModel, query_config: Dict) -> List[Dict]:
         """Query records for a schema with field selection and filtering"""
+        from ..models import DataRow
+        
         query = MetadataRecord.query.filter_by(schema_id=schema.id)
         
-        # Apply filters
-        for filter_item in query_config.get('filters', []):
-            field_name = filter_item.get('field')
-            operator = filter_item.get('operator', 'eq')
-            value = filter_item.get('value')
-            
-            if operator == 'eq':
-                query = query.filter(MetadataRecord.raw_data[field_name].astext == str(value))
-            elif operator == 'contains':
-                query = query.filter(MetadataRecord.raw_data[field_name].astext.ilike(f'%{value}%'))
-            elif operator == 'gt':
-                query = query.filter(MetadataRecord.raw_data[field_name].astext.cast(db.Float) > float(value))
-            elif operator == 'lt':
-                query = query.filter(MetadataRecord.raw_data[field_name].astext.cast(db.Float) < float(value))
-        
-        # Apply sorting
-        for sort_item in query_config.get('sort', []):
-            field_name = sort_item.get('field')
-            direction = sort_item.get('direction', 'asc')
-            if direction == 'asc':
-                query = query.order_by(MetadataRecord.raw_data[field_name].astext.asc())
-            else:
-                query = query.order_by(MetadataRecord.raw_data[field_name].astext.desc())
-        
-        # Apply limit
+        # Apply limit (for records, not expanded rows)
         limit = query_config.get('limit', 10000)
         query = query.limit(limit)
         
@@ -234,45 +213,66 @@ class ReportGenerator:
         # Execute and format
         records = query.all()
         result = []
+        
         for record in records:
-            # Get data from raw_data or metadata_json
-            record_data = record.raw_data or record.metadata_json or {}
-            # Parse if string
-            if isinstance(record_data, str):
-                try:
-                    record_data = json.loads(record_data)
-                except:
-                    record_data = {}
+            # FIRST: Check DataRow table (new approach for bulk imports)
+            data_rows = DataRow.query.filter_by(record_id=record.id).all()
             
-            # Handle array format (bulk import) - expand all rows
-            if isinstance(record_data, list):
-                for idx, row_data in enumerate(record_data):
+            if data_rows:
+                # Data stored in separate DataRow table
+                for data_row in data_rows:
+                    record_dict = {
+                        'record_id': record.id,
+                        'record_name': record.name,
+                        'row_index': data_row.row_index,
+                    }
+                    row_data = data_row.data or {}
                     if isinstance(row_data, dict):
-                        record_dict = {
-                            'record_id': record.id,
-                            'record_name': record.name,
-                            'row_index': idx + 1,
-                        }
-                        # Add selected fields or all fields if none specified
                         if fields:
                             for field in fields:
                                 record_dict[field] = row_data.get(field)
                         else:
                             record_dict.update(row_data)
-                        result.append(record_dict)
-            elif isinstance(record_data, dict):
-                # Single object format
-                record_dict = {
-                    'id': record.id,
-                    'name': record.name,
-                }
-                # Add selected fields or all fields if none specified
-                if fields:
-                    for field in fields:
-                        record_dict[field] = record_data.get(field)
-                else:
-                    record_dict.update(record_data)
-                result.append(record_dict)
+                    result.append(record_dict)
+            else:
+                # FALLBACK: Get data from raw_data or metadata_json (legacy)
+                record_data = record.raw_data or record.metadata_json or {}
+                # Parse if string
+                if isinstance(record_data, str):
+                    try:
+                        record_data = json.loads(record_data)
+                    except:
+                        record_data = {}
+                
+                # Handle array format (bulk import) - expand all rows
+                if isinstance(record_data, list):
+                    for idx, row_data in enumerate(record_data):
+                        if isinstance(row_data, dict):
+                            record_dict = {
+                                'record_id': record.id,
+                                'record_name': record.name,
+                                'row_index': idx + 1,
+                            }
+                            # Add selected fields or all fields if none specified
+                            if fields:
+                                for field in fields:
+                                    record_dict[field] = row_data.get(field)
+                            else:
+                                record_dict.update(row_data)
+                            result.append(record_dict)
+                elif isinstance(record_data, dict) and record_data:
+                    # Single object format with actual data
+                    record_dict = {
+                        'id': record.id,
+                        'name': record.name,
+                    }
+                    # Add selected fields or all fields if none specified
+                    if fields:
+                        for field in fields:
+                            record_dict[field] = record_data.get(field)
+                    else:
+                        record_dict.update(record_data)
+                    result.append(record_dict)
         
         return result
     
@@ -284,6 +284,8 @@ class ReportGenerator:
         params: Optional[Dict] = None
     ) -> ReportExecution:
         """Generate legacy single-table report for backward compatibility"""
+        from ..models import DataRow
+        
         # Create execution record
         execution = ReportExecution(
             template_id=template.id,
@@ -303,31 +305,7 @@ class ReportGenerator:
             query_config = self._merge_params(template.query_config or {}, params or {})
             
             # Query all records with their full data
-            query = MetadataRecord.query.filter_by(schema_id=template.schema.id)
-            
-            # Apply filters if any
-            for filter_item in query_config.get('filters', []):
-                field_name = filter_item.get('field')
-                operator = filter_item.get('operator', 'eq')
-                value = filter_item.get('value')
-                
-                if operator == 'eq':
-                    query = query.filter(MetadataRecord.raw_data[field_name].astext == str(value))
-                elif operator == 'contains':
-                    query = query.filter(MetadataRecord.raw_data[field_name].astext.ilike(f'%{value}%'))
-                elif operator == 'gt':
-                    query = query.filter(MetadataRecord.raw_data[field_name].astext.cast(db.Float) > float(value))
-                elif operator == 'lt':
-                    query = query.filter(MetadataRecord.raw_data[field_name].astext.cast(db.Float) < float(value))
-            
-            # Apply sorting
-            for sort_item in query_config.get('sort', []):
-                field_name = sort_item.get('field')
-                direction = sort_item.get('direction', 'asc')
-                if direction == 'asc':
-                    query = query.order_by(MetadataRecord.raw_data[field_name].astext.asc())
-                else:
-                    query = query.order_by(MetadataRecord.raw_data[field_name].astext.desc())
+            query = MetadataRecord.query.filter_by(schema_id=template.schema_id)
             
             # Apply limit
             limit = query_config.get('limit', 10000)
@@ -337,30 +315,68 @@ class ReportGenerator:
             records = query.all()
             data = []
             fields = query_config.get('fields', [])
+            all_fields = set()
             
             for record in records:
-                row = {
-                    'id': record.id,
-                    'name': record.name,
-                    'created_at': record.created_at.isoformat() if record.created_at else None,
-                }
+                # FIRST: Check DataRow table (new approach for bulk imports)
+                data_rows = DataRow.query.filter_by(record_id=record.id).all()
                 
-                # Add all data fields from JSON column
-                record_data = record.raw_data or record.metadata_json or {}
-                # Ensure record_data is a dictionary
-                if not isinstance(record_data, dict):
-                    record_data = {}
-                
-                if record_data:
-                    if fields:
-                        # Only include specified fields
-                        for field in fields:
-                            row[field] = record_data.get(field)
-                    else:
-                        # Include all fields
-                        row.update(record_data)
-                
-                data.append(row)
+                if data_rows:
+                    # Data stored in separate DataRow table
+                    for data_row in data_rows:
+                        row = {
+                            'record_id': record.id,
+                            'record_name': record.name,
+                            'row_index': data_row.row_index,
+                        }
+                        row_data = data_row.data or {}
+                        if isinstance(row_data, dict):
+                            if fields:
+                                for field in fields:
+                                    row[field] = row_data.get(field)
+                            else:
+                                row.update(row_data)
+                                all_fields.update(row_data.keys())
+                        data.append(row)
+                else:
+                    # FALLBACK: Get data from raw_data or metadata_json (legacy)
+                    record_data = record.raw_data or record.metadata_json or {}
+                    # Parse if string
+                    if isinstance(record_data, str):
+                        try:
+                            record_data = json.loads(record_data)
+                        except:
+                            record_data = {}
+                    
+                    # Handle array format (bulk import)
+                    if isinstance(record_data, list):
+                        for idx, row_data in enumerate(record_data):
+                            if isinstance(row_data, dict):
+                                row = {
+                                    'record_id': record.id,
+                                    'record_name': record.name,
+                                    'row_index': idx + 1,
+                                }
+                                if fields:
+                                    for field in fields:
+                                        row[field] = row_data.get(field)
+                                else:
+                                    row.update(row_data)
+                                    all_fields.update(row_data.keys())
+                                data.append(row)
+                    elif isinstance(record_data, dict) and record_data:
+                        row = {
+                            'id': record.id,
+                            'name': record.name,
+                            'created_at': record.created_at.isoformat() if record.created_at else None,
+                        }
+                        if fields:
+                            for field in fields:
+                                row[field] = record_data.get(field)
+                        else:
+                            row.update(record_data)
+                            all_fields.update(record_data.keys())
+                        data.append(row)
             
             # Generate filename
             timestamp = int(time.time())
@@ -474,6 +490,12 @@ class ReportGenerator:
             records = query.all()
             data = []
             fields = query_config.get('fields', [])
+            
+            # If no fields specified, extract them from the first record's raw_data
+            if not fields and records:
+                first_record_data = records[0].raw_data or records[0].metadata_json or {}
+                if isinstance(first_record_data, dict):
+                    fields = list(first_record_data.keys())
             
             for record in records:
                 row = {

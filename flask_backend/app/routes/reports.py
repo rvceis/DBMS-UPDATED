@@ -157,54 +157,58 @@ def delete_template(template_id):
 @jwt_required()
 def generate_report():
     """Generate a report from template with content options override"""
-    user_id = int(get_jwt_identity())
-    data = request.get_json()
-    
-    template_id = data.get('template_id')
-    format_type = data.get('format', 'csv')
-    params = data.get('params', {})
-    
-    if not template_id:
-        return jsonify({'error': 'template_id is required'}), 400
-    
-    if format_type not in ['csv', 'pdf']:
-        return jsonify({'error': 'format must be csv or pdf'}), 400
-    
-    # Verify template access
-    template = ReportTemplate.query.get(template_id)
-    if not template:
-        return jsonify({'error': 'Template not found'}), 404
-    
-    user = User.query.get(user_id)
-    if not template.is_public and template.created_by != user_id and user.role != 'admin':
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    # Override content options if provided
-    if 'include_records' in data:
-        template.include_records = data['include_records']
-    if 'include_metadata' in data:
-        template.include_metadata = data['include_metadata']
-    if 'include_schema_details' in data:
-        template.include_schema_details = data['include_schema_details']
-    if 'include_summary' in data:
-        template.include_summary = data['include_summary']
-    
     try:
+        user_id = int(get_jwt_identity())
+        data = request.get_json()
+        
+        template_id = data.get('template_id')
+        format_type = data.get('format', 'csv')
+        params = data.get('params', {})
+        
+        if not template_id:
+            return jsonify({'error': 'template_id is required'}), 400
+        
+        if format_type not in ['csv', 'pdf']:
+            return jsonify({'error': 'format must be csv or pdf'}), 400
+        
+        # Verify template access
+        template = ReportTemplate.query.get(template_id)
+        if not template:
+            return jsonify({'error': f'Template {template_id} not found'}), 404
+        
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        if not template.is_public and template.created_by != user_id and user.role != 'admin':
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        # Check if template has valid configuration
+        if not template.schema_id and not template.table_configs:
+            return jsonify({
+                'error': f"Template '{template.name}' is not properly configured. " +
+                        "Please add a schema or table configuration before generating reports.",
+                'template_id': template_id,
+                'suggestion': 'Use /api/reports/generate/adhoc for direct report generation without templates'
+            }), 400
+        
+        # Override content options if provided
+        if 'include_records' in data:
+            template.include_records = data['include_records']
+        if 'include_metadata' in data:
+            template.include_metadata = data['include_metadata']
+        if 'include_schema_details' in data:
+            template.include_schema_details = data['include_schema_details']
+        if 'include_summary' in data:
+            template.include_summary = data['include_summary']
+        
         execution = report_gen.generate_report(template_id, format_type, user_id, params)
         return jsonify(execution.to_dict()), 201
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
-        return jsonify({'error': 'Template not found'}), 404
-    
-    user = User.query.get(user_id)
-    if not template.is_public and template.created_by != user_id and user.role != 'admin':
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    try:
-        execution = report_gen.generate_report(template_id, format_type, user_id, params)
-        return jsonify(execution.to_dict()), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        error_msg = str(e)
+        traceback.print_exc()
+        return jsonify({'error': error_msg, 'type': type(e).__name__}), 500
 
 
 @reports_bp.route('/generate/adhoc', methods=['POST'])

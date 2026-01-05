@@ -1,0 +1,140 @@
+building_id: BLDG-001
+building_name: Administrative Headquarters
+location: 123 Main Street
+building_type: Commercial
+total_floors: 5
+total_area_sqft: 50000
+energy_rating: LEED_Gold
+
+rooms:
+  - room_id: ROOM-101
+    room_name: Executive Office
+    floor: 1
+    area_sqft: 200
+    occupancy_capacity: 1
+    climate_zone: ZONE-A
+    hvac_facility_id: FAC-HVAC-01
+    assigned_employee_id: EMP-001
+
+rooms:
+  - room_id: ROOM-201
+    room_name: Conference Room A
+    floor: 2
+    area_sqft: 400
+    occupancy_capacity: 20
+    climate_zone: ZONE-B
+    hvac_facility_id: FAC-HVAC-01
+    assigned_employee_id: EMP-002
+
+rooms:
+  - room_id: ROOM-202
+    room_name: Laboratory
+    floor: 2
+    area_sqft: 500
+    occupancy_capacity: 10
+    climate_zone: ZONE-C
+    hvac_facility_id: FAC-HVAC-01
+    assigned_employee_id: EMP-001
+
+building_systems:
+  - system_type: Electrical
+    system_status: operational
+    voltage_primary: 480V_3phase
+    backup_generator: true
+    last_inspection_date: 2024-12-01
+
+building_systems:
+  - system_type: Plumbing
+    system_status: operational
+    water_pressure_psi: 60
+    water_treatment_active: true
+    last_inspection_date: 2024-11-15
+
+building_systems:
+  - system_type: Fire_Safety
+    system_status: operational
+    sprinkler_coverage_percent: 100
+    fire_alarm_zones: 8
+    last_inspection_date: 2024-10-20
+
+energy_consumption:
+  - consumption_date: 2025-01-01
+    electricity_kwh: 1250
+    water_gallons: 3500
+    natural_gas_therms: 85
+    total_cost_usd: 450
+
+energy_consumption:
+  - consumption_date: 2025-01-02
+    electricity_kwh: 1180
+    water_gallons: 3200
+    natural_gas_therms: 78
+    total_cost_usd: 425
+
+---
+
+building_id: BLDG-002
+building_name: Research & Development Facility
+location: 456 Tech Drive
+building_type: Industrial
+total_floors: 3
+total_area_sqft: 75000
+energy_rating: LEED_Silver
+
+rooms:
+  - room_id: ROOM-301
+    room_name: Testing Lab 1
+    floor: 1
+    area_sqft: 600
+    occupancy_capacity: 15
+    climate_zone: ZONE-D
+    hvac_facility_id: FAC-HVAC-02
+    assigned_employee_id: EMP-001
+
+rooms:
+  - room_id: ROOM-302
+    room_name: Testing Lab 2
+    floor: 1
+    area_sqft: 650
+    occupancy_capacity: 15
+    climate_zone: ZONE-E
+    hvac_facility_id: FAC-HVAC-02
+    assigned_employee_id: EMP-002
+
+rooms:
+  - room_id: ROOM-401
+    room_name: Manufacturing Floor
+    floor: 2
+    area_sqft: 2000
+    occupancy_capacity: 50
+    climate_zone: ZONE-D
+    hvac_facility_id: FAC-HVAC-02
+    assigned_employee_id: null
+
+building_systems:
+  - system_type: Electrical
+    system_status: operational
+    voltage_primary: 480V_3phase
+    backup_generator: true
+    last_inspection_date: 2024-12-10
+
+building_systems:
+  - system_type: Compressed_Air
+    system_status: operational
+    pressure_psi: 120
+    capacity_cfm: 5000
+    last_inspection_date: 2024-11-20
+
+energy_consumption:
+  - consumption_date: 2025-01-01
+    electricity_kwh: 2500
+    water_gallons: 8000
+    natural_gas_therms: 120
+    total_cost_usd: 950
+
+energy_consumption:
+  - consumption_date: 2025-01-02
+    electricity_kwh: 2450
+    water_gallons: 7800
+    natural_gas_therms: 115
+    total_cost_usd: 920

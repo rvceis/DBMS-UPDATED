@@ -1,0 +1,105 @@
+facility_id: FAC-HVAC-01
+facility_name: Central HVAC System
+location: Building 1
+facility_type: HVACSystem
+maintenance_status: operational
+installed_date: 2023-06-15
+
+system_configuration:
+  zones: 4
+  compressor_count: 2
+  fan_speed_levels: 5
+  warranty_until: 2026-06-15
+
+zone_status:
+  - zone_id: ZONE-A
+    zone_name: Floor 1 North
+    current_temperature_celsius: 21.2
+    target_temperature_celsius: 22.0
+    fan_speed: 3
+    damper_position_percent: 75
+    airflow_cfm: 450
+    runtime_hours: 8750
+
+zone_status:
+  - zone_id: ZONE-B
+    zone_name: Floor 1 South
+    current_temperature_celsius: 22.8
+    target_temperature_celsius: 22.0
+    fan_speed: 4
+    damper_position_percent: 85
+    airflow_cfm: 520
+    runtime_hours: 8745
+
+zone_status:
+  - zone_id: ZONE-C
+    zone_name: Floor 2 North
+    current_temperature_celsius: 20.5
+    target_temperature_celsius: 21.5
+    fan_speed: 2
+    damper_position_percent: 65
+    airflow_cfm: 380
+    runtime_hours: 8720
+
+maintenance_alerts:
+  - alert_id: ALT-001
+    alert_type: FilterChangeRequired
+    severity: high
+    next_due_date: 2025-01-15
+    last_maintenance_date: 2024-10-20
+
+maintenance_alerts:
+  - alert_id: ALT-002
+    alert_type: RefrigerantCheck
+    severity: medium
+    next_due_date: 2025-02-01
+    last_maintenance_date: 2024-08-10
+
+---
+
+facility_id: FAC-HVAC-02
+facility_name: Secondary HVAC System
+location: Building 2
+facility_type: HVACSystem
+maintenance_status: needs_attention
+installed_date: 2022-03-10
+
+system_configuration:
+  zones: 3
+  compressor_count: 1
+  fan_speed_levels: 5
+  warranty_until: 2025-03-10
+
+zone_status:
+  - zone_id: ZONE-D
+    zone_name: Floor 1 East
+    current_temperature_celsius: 23.1
+    target_temperature_celsius: 22.0
+    fan_speed: 4
+    damper_position_percent: 90
+    airflow_cfm: 510
+    runtime_hours: 12500
+
+zone_status:
+  - zone_id: ZONE-E
+    zone_name: Floor 1 West
+    current_temperature_celsius: 21.9
+    target_temperature_celsius: 22.0
+    fan_speed: 3
+    damper_position_percent: 75
+    airflow_cfm: 460
+    runtime_hours: 12495
+
+maintenance_alerts:
+  - alert_id: ALT-003
+    alert_type: CompressorNoiseDetected
+    severity: critical
+    next_due_date: 2025-01-08
+    last_maintenance_date: 2024-11-01
+
+maintenance_alerts:
+  - alert_id: ALT-004
+    alert_type: CycleCountHigh
+    severity: high
+    next_due_date: 2025-01-20
+    last_maintenance_date: 2024-09-15

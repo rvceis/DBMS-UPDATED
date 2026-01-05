@@ -1,0 +1,244 @@
+# Version 5: Full relational model with nested metadata + event log + performance metrics
+sensor_id: TEMP_001
+device_uuid: 550e8400-e29b-41d4-a716-446655440000
+location: Building_A_Floor_1
+building_ref_id: BLDG_A
+floor_number: 1
+zone_id: ZONE_A1_WEST
+parent_controller_id: CTRL_A1
+timestamp: 2025-01-01T08:00:00
+temperature: 22.5
+status: active
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-12-15
+maintenance_next_date: 2025-03-15
+maintenance_technician: John_Smith
+maintenance_notes: Routine calibration completed
+equipment_model: ThermoSense-3000
+equipment_serial: TS3K-2024-001
+equipment_manufacturer: SensorTech Inc
+equipment_manufacturing_date: 2023-06-15
+alert_threshold_high: 28.0
+alert_threshold_low: 15.0
+current_alert_status: normal
+anomaly_detected: false
+anomaly_type: N/A
+anomaly_severity: N/A
+data_quality_score: 0.98
+last_calibration: 2024-12-15
+battery_level: 87
+battery_voltage: 3.2V
+firmware_version: 2.4.1
+firmware_last_update: 2024-11-30
+hourly_readings_08: 21.8,22.1,22.3,22.5
+hourly_readings_09: 22.6,22.7,22.8,22.9
+hourly_readings_10: 23.0,23.1,23.2,23.3
+connected_humidity_sensors: HUMID_001
+connected_pressure_sensors: PRES_001
+recent_events: calibration_start|2024-12-15T14:30:00,calibration_complete|2024-12-15T14:45:00,data_sync|2025-01-01T08:00:00
+performance_uptime_percent: 99.8
+performance_data_loss_percent: 0.2
+performance_last_error: NULL
+performance_error_count_24h: 0
+owner_department: Facilities_Management
+owner_contact: facilities@company.com
+cost_center: CC-BLDG-A
+warranty_expiry: 2026-06-15
+
+---
+
+sensor_id: TEMP_002
+device_uuid: 660e8400-e29b-41d4-a716-446655440001
+location: Building_A_Floor_2
+building_ref_id: BLDG_A
+floor_number: 2
+zone_id: ZONE_A2_EAST
+parent_controller_id: CTRL_A2
+timestamp: 2025-01-01T08:00:00
+temperature: 21.8
+status: active
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-11-20
+maintenance_next_date: 2025-02-20
+maintenance_technician: Sarah_Johnson
+maintenance_notes: Sensor replaced due to drift
+equipment_model: ThermoSense-2500
+equipment_serial: TS2.5K-2024-002
+equipment_manufacturer: SensorTech Inc
+equipment_manufacturing_date: 2024-08-20
+alert_threshold_high: 28.0
+alert_threshold_low: 15.0
+current_alert_status: warning
+anomaly_detected: true
+anomaly_type: temperature_spike
+anomaly_severity: medium
+anomaly_start_time: 2025-01-01T07:45:00
+anomaly_magnitude: +2.3C
+data_quality_score: 0.92
+last_calibration: 2024-11-20
+battery_level: 62
+battery_voltage: 2.8V
+firmware_version: 2.3.0
+firmware_last_update: 2024-10-15
+hourly_readings_08: 21.5,21.6,21.7,21.8
+hourly_readings_09: 21.9,22.0,22.1,22.2
+hourly_readings_10: 22.3,22.4,22.5,22.6
+connected_humidity_sensors: HUMID_003
+connected_pressure_sensors: PRES_002
+recent_events: anomaly_detected|2025-01-01T07:45:00,alert_raised|2025-01-01T07:46:00,data_sync|2025-01-01T08:00:00
+performance_uptime_percent: 98.5
+performance_data_loss_percent: 1.5
+performance_last_error: failed_sync|2025-01-01T07:30:00
+performance_error_count_24h: 2
+owner_department: Facilities_Management
+owner_contact: facilities@company.com
+cost_center: CC-BLDG-A
+warranty_expiry: 2025-08-20
+
+---
+
+sensor_id: HUMID_001
+device_uuid: 770e8400-e29b-41d4-a716-446655440002
+location: Building_A_Floor_1
+building_ref_id: BLDG_A
+floor_number: 1
+zone_id: ZONE_A1_WEST
+parent_controller_id: CTRL_A1
+timestamp: 2025-01-01T08:00:00
+temperature: 45.2
+status: active
+maintenance_schedule: semi-annual
+maintenance_last_date: 2024-07-10
+maintenance_next_date: 2025-01-10
+maintenance_technician: Mike_Chen
+maintenance_notes: Annual inspection passed
+equipment_model: HumidityPro-100
+equipment_serial: HP100-2024-001
+equipment_manufacturer: HumiditySense Ltd
+equipment_manufacturing_date: 2022-03-10
+alert_threshold_high: 60.0
+alert_threshold_low: 30.0
+current_alert_status: normal
+anomaly_detected: false
+anomaly_type: N/A
+anomaly_severity: N/A
+data_quality_score: 0.96
+last_calibration: 2024-07-10
+battery_level: 91
+battery_voltage: 3.5V
+firmware_version: 1.9.2
+firmware_last_update: 2024-09-12
+hourly_readings_08: 44.8,45.0,45.1,45.2
+hourly_readings_09: 45.3,45.4,45.5,45.6
+hourly_readings_10: 45.7,45.8,45.9,46.0
+connected_temperature_sensor: TEMP_001
+parent_device_id: TEMP_001
+recent_events: data_sync|2024-01-01T08:00:00
+performance_uptime_percent: 99.95
+performance_data_loss_percent: 0.05
+performance_last_error: NULL
+performance_error_count_24h: 0
+owner_department: Facilities_Management
+owner_contact: facilities@company.com
+cost_center: CC-BLDG-A
+warranty_expiry: 2027-03-10
+
+---
+
+sensor_id: TEMP_003
+device_uuid: 880e8400-e29b-41d4-a716-446655440003
+location: Building_B_Floor_1
+building_ref_id: BLDG_B
+floor_number: 1
+zone_id: ZONE_B1_CENTER
+parent_controller_id: CTRL_B1
+timestamp: 2025-01-01T08:00:00
+temperature: 23.1
+status: inactive
+maintenance_schedule: quarterly
+maintenance_last_date: 2024-10-01
+maintenance_next_date: 2025-01-01
+maintenance_technician: PENDING
+maintenance_notes: URGENT - Sensor offline
+equipment_model: ThermoSense-2500
+equipment_serial: TS2.5K-2024-003
+equipment_manufacturer: SensorTech Inc
+equipment_manufacturing_date: 2024-02-10
+alert_threshold_high: 28.0
+alert_threshold_low: 15.0
+current_alert_status: critical
+failure_reason: Sensor calibration drift
+device_status_code: FAILED_CALIBRATION
+failure_detected_time: 2025-01-01T06:15:00
+estimated_repair_time: 2025-01-02T14:00:00
+repair_status: SCHEDULED
+data_quality_score: 0.0
+last_calibration: 2024-10-01
+battery_level: 5
+battery_voltage: 1.2V
+firmware_version: 2.1.0
+firmware_last_update: 2024-08-01
+hourly_readings_08: NULL
+hourly_readings_09: NULL
+hourly_readings_10: NULL
+connected_humidity_sensors: NULL
+parent_device_id: NULL
+recent_events: calibration_failed|2024-10-01T10:30:00,offline_detected|2025-01-01T06:15:00,maintenance_ticket_created|2025-01-01T06:20:00
+performance_uptime_percent: 75.2
+performance_data_loss_percent: 24.8
+performance_last_error: calibration_failed
+performance_error_count_24h: 12
+owner_department: Facilities_Management
+owner_contact: facilities@company.com
+cost_center: CC-BLDG-B
+warranty_expiry: 2025-02-10
+escalation_level: 2
+repair_priority: HIGH
+
+---
+
+sensor_id: HUMID_002
+device_uuid: 990e8400-e29b-41d4-a716-446655440004
+location: Building_B_Floor_1
+building_ref_id: BLDG_B
+floor_number: 1
+zone_id: ZONE_B1_CENTER
+parent_controller_id: CTRL_B1
+timestamp: 2025-01-01T08:00:00
+temperature: 52.0
+status: active
+maintenance_schedule: semi-annual
+maintenance_last_date: 2024-09-05
+maintenance_next_date: 2025-03-05
+maintenance_technician: Lisa_Rodriguez
+maintenance_notes: Filter cleaned, sensor recalibrated
+equipment_model: HumidityPro-100
+equipment_serial: HP100-2024-002
+equipment_manufacturer: HumiditySense Ltd
+equipment_manufacturing_date: 2023-11-05
+alert_threshold_high: 60.0
+alert_threshold_low: 30.0
+current_alert_status: normal
+anomaly_detected: false
+anomaly_type: N/A
+anomaly_severity: N/A
+data_quality_score: 0.94
+last_calibration: 2024-09-05
+battery_level: 78
+battery_voltage: 3.1V
+firmware_version: 1.8.5
+firmware_last_update: 2024-11-20
+hourly_readings_08: 51.5,51.7,51.9,52.0
+hourly_readings_09: 52.1,52.2,52.3,52.4
+hourly_readings_10: 52.5,52.6,52.7,52.8
+connected_temperature_sensor: NULL
+parent_device_id: NULL
+recent_events: maintenance_completed|2024-09-05T09:30:00,data_sync|2025-01-01T08:00:00
+performance_uptime_percent: 99.8
+performance_data_loss_percent: 0.2
+performance_last_error: NULL
+performance_error_count_24h: 0
+owner_department: Facilities_Management
+owner_contact: facilities@company.com
+cost_center: CC-BLDG-B
+warranty_expiry: 2026-11-05

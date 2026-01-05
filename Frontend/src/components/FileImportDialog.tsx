@@ -521,7 +521,13 @@ export default function FileImportDialog({ open, onClose, onSuccess }: FileImpor
                   {preview.preview.map((row: any, idx: number) => (
                     <TableRow key={idx}>
                       {Object.values(row).map((val: any, vidx: number) => (
-                        <TableCell key={vidx}>{String(val).substring(0, 50)}</TableCell>
+                        <TableCell key={vidx}>
+                          {val === null || val === undefined
+                            ? '-'
+                            : typeof val === 'object'
+                              ? JSON.stringify(val).substring(0, 80) + (JSON.stringify(val).length > 80 ? '...' : '')
+                              : String(val).substring(0, 50)}
+                        </TableCell>
                       ))}
                     </TableRow>
                   ))}

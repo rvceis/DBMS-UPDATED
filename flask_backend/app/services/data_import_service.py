@@ -19,7 +19,7 @@ class DataImportService:
         """
         Auto-detect data format
         
-        Returns: 'json', 'csv', 'tsv', 'plain', 'excel', or 'unknown'
+        Returns: 'json', 'csv', 'tsv', 'plain', 'excel', 'keyvalue', 'structured_text', or 'unknown'
         """
         content = content.strip()
         
@@ -36,10 +36,10 @@ class DataImportService:
             except:
                 pass
         
-        # Check for CSV/TSV patterns
+        # Check for CSV/TSV/Delimited patterns
         lines = content.split('\n')
         if len(lines) > 1:
-            first_line = lines[0]
+            first_line = lines[0].strip()
             
             # Count delimiters
             comma_count = first_line.count(',')
@@ -47,21 +47,102 @@ class DataImportService:
             pipe_count = first_line.count('|')
             semicolon_count = first_line.count(';')
             
-            # Determine delimiter
-            if tab_count > comma_count and tab_count > 0:
-                return 'tsv'
-            elif comma_count > 0:
-                return 'csv'
-            elif pipe_count > comma_count:
-                return 'pipe'
-            elif semicolon_count > comma_count:
-                return 'semicolon'
+            # Require multiple delimiters for CSV detection
+            delim_count = sum(1 for char in first_line if char in [',', '\t', '|', ';'])
+            if delim_count >= 2 or comma_count >= 2:
+                # Determine delimiter
+                if tab_count > comma_count and tab_count > 0:
+                    return 'tsv'
+                elif pipe_count > 0 and pipe_count > comma_count:
+                    return 'pipe'
+                elif semicolon_count > 0 and semicolon_count > comma_count:
+                    return 'semicolon'
+                elif comma_count > 0:
+                    return 'csv'
+            
+            # Check for structured text patterns (indented, hierarchical, formatted)
+            if self._is_structured_text(content):
+                return 'structured_text'
+            
+            # Check for key-value pairs (YAML-like, INI-like)
+            if self._is_keyvalue_format(content):
+                return 'keyvalue'
         
-        # Check for key-value pairs
-        if re.search(r'\w+\s*[:=]\s*.+', content):
-            return 'keyvalue'
+        # Default to plain text for simple lists/data
+        return 'plain'
+    
+    def _is_structured_text(self, content: str) -> bool:
+        """Check if content is structured text (indented blocks, nested, hierarchical)"""
+        lines = content.split('\n')
         
-        return 'unknown'
+        # Check for indentation patterns (common in structured text)
+        indented_count = 0
+        total_non_empty = 0
+        for line in lines:  # Check ALL lines, not just first 20
+            if not line.strip():
+                continue
+            total_non_empty += 1
+            if line and len(line) > 0 and line[0] in [' ', '\t']:
+                indented_count += 1
+        
+        # If ANY significant indentation exists (>10% of lines), it's structured
+        if total_non_empty > 0 and indented_count > 0:
+            ratio = indented_count / total_non_empty
+            if ratio >= 0.1:  # Lowered from 0.3 to 0.1 (10%)
+                return True
+        
+        # Check for array-like patterns (- item)
+        if re.search(r'^\s+-\s+\w+:', content, re.MULTILINE):
+            return True
+        
+        # Check for YAML-style arrays (- key: value under a parent)
+        if re.search(r':\s*\n\s+-\s+\w+:', content, re.MULTILINE):
+            return True
+        
+        # Check for record separators with key-value pairs (--- separator)
+        if '---' in content and re.search(r'^\w+:\s*.+', content, re.MULTILINE):
+            # Check if there's ANY indentation anywhere
+            if re.search(r'^\s+', content, re.MULTILINE):
+                return True
+        
+        # Check for common structured patterns
+        # XML-like
+        if '<' in content and '>' in content:
+            return True
+        
+        # Markdown table
+        if '|' in content and '--' in content:
+            return True
+        
+        # Hierarchical (===, ---, ##, etc.)
+        if re.search(r'^[=\-#]{3,}', content, re.MULTILINE):
+            return True
+        
+        # Indented lists with bullets/numbers
+        if re.search(r'^\s+[\-\*•]\s+', content, re.MULTILINE):
+            return True
+        
+        return False
+    
+    def _is_keyvalue_format(self, content: str) -> bool:
+        """Check if content is key-value format (YAML-like, INI-like)"""
+        lines = content.split('\n')
+        keyvalue_count = 0
+        
+        for line in lines[:20]:  # Check first 20 lines
+            line = line.strip()
+            if not line or line.startswith('#') or line.startswith(';'):
+                continue
+            # Match patterns like: key: value, key=value, key := value
+            if re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*\s*[:=]\s*.+', line):
+                keyvalue_count += 1
+        
+        # If >30% of lines are key-value, it's likely the format
+        total_content_lines = sum(1 for line in lines if line.strip() and not line.strip().startswith('#'))
+        if total_content_lines > 0 and keyvalue_count / total_content_lines > 0.3:
+            return True
+        
+        return False
     
     def parse_excel(self, file_content: bytes, sheet_name: str = 0) -> List[Dict[str, Any]]:
         """Parse Excel file (XLSX/XLS)"""
@@ -160,6 +241,250 @@ class DataImportService:
         
         return records
     
+    def parse_structured_text(self, content: str) -> List[Dict[str, Any]]:
+        """
+        Parse structured text formats (indented blocks, hierarchical data, markdown tables)
+        Supports:
+        - Markdown tables
+        - Indented hierarchical data
+        - Multi-line records separated by blank lines
+        """
+        records = []
+        
+        # Check for markdown table format (| header | header |)
+        if '|' in content and re.search(r'\|\s*-+\s*\|', content):
+            return self._parse_markdown_table(content)
+        
+        # Check for hierarchical/indented format
+        if re.search(r'^\s+', content, re.MULTILINE):
+            return self._parse_hierarchical_text(content)
+        
+        # Default: treat as key-value blocks separated by blank lines
+        return self.parse_keyvalue(content)
+    
+    def _parse_markdown_table(self, content: str) -> List[Dict[str, Any]]:
+        """Parse markdown table format"""
+        lines = [line.strip() for line in content.split('\n') if line.strip()]
+        records = []
+        
+        # Find header row
+        header_idx = -1
+        for idx, line in enumerate(lines):
+            if '|' in line and idx + 1 < len(lines) and '-' in lines[idx + 1]:
+                header_idx = idx
+                break
+        
+        if header_idx < 0:
+            return records
+        
+        # Parse headers
+        header_line = lines[header_idx]
+        headers = [h.strip() for h in header_line.split('|') if h.strip()]
+        
+        # Parse data rows (skip separator row)
+        for idx in range(header_idx + 2, len(lines)):
+            line = lines[idx]
+            if not line or '|' not in line:
+                continue
+            
+            values = [v.strip() for v in line.split('|') if v.strip()]
+            if len(values) > 0:
+                record = {}
+                for i, header in enumerate(headers):
+                    record[header] = values[i] if i < len(values) else ''
+                records.append(record)
+        
+        return records
+    
+    def _parse_hierarchical_text(self, content: str) -> List[Dict[str, Any]]:
+        """Parse indented/hierarchical text format with proper nesting (JSON structure)
+        
+        Handles:
+        - Key: value pairs at root level
+        - Nested objects via indentation
+        - Arrays with - prefix
+        - Repeated keys merge into arrays
+        - Record separators: --- only (not blank lines)
+        """
+        records = []
+        current_record = {}
+        current_parent_key = None
+        current_array = None
+        in_array_context = False
+        
+        lines = content.split('\n')
+        i = 0
+        
+        while i < len(lines):
+            line = lines[i]
+            stripped = line.strip()
+            
+            # Check for explicit record separator (ONLY ---)
+            if stripped == '---':
+                if current_record:
+                    records.append(current_record)
+                    current_record = {}
+                    current_parent_key = None
+                    current_array = None
+                    in_array_context = False
+                i += 1
+                continue
+            
+            # Skip blank lines entirely (they don't separate records anymore)
+            if not stripped:
+                i += 1
+                continue
+            
+            # Determine indentation level
+            indent = len(line) - len(line.lstrip())
+            
+            # Check for parent key with no value (indicates nested structure or array)
+            parent_match = re.match(r'^([a-zA-Z_][a-zA-Z0-9_\s]*)\s*:\s*$', stripped)
+            if parent_match and indent == 0:
+                new_parent_key = parent_match.group(1).strip()
+                
+                # If this key already exists, we'll MERGE the new values
+                # (e.g., repeated sensor_readings: blocks)
+                if new_parent_key in current_record:
+                    # Key exists - continue appending to existing array
+                    current_parent_key = new_parent_key
+                    # Ensure it's a list
+                    if not isinstance(current_record[current_parent_key], list):
+                        current_record[current_parent_key] = [current_record[current_parent_key]]
+                    current_array = current_record[current_parent_key]
+                    in_array_context = True
+                else:
+                    # New key
+                    current_parent_key = new_parent_key
+                    current_array = None
+                    in_array_context = False
+                i += 1
+                continue
+            
+            # PRIORITY 1: Check for array item with key:value FIRST (e.g., "- timestamp: 2025-01-01")
+            # This must come before regular key:value to prevent "- key" from matching as key
+            array_item_match = re.match(r'^-\s+([^:=]+)\s*[:=]\s*(.+)$', stripped)
+            if array_item_match and current_parent_key:
+                key = array_item_match.group(1).strip()
+                value = array_item_match.group(2).strip()
+                
+                in_array_context = True
+                
+                # Initialize array if needed
+                if current_parent_key not in current_record:
+                    current_record[current_parent_key] = []
+                
+                if not isinstance(current_record[current_parent_key], list):
+                    prev_value = current_record[current_parent_key]
+                    current_record[current_parent_key] = [prev_value] if prev_value else []
+                
+                current_array = current_record[current_parent_key]
+                # Start new array item
+                current_array.append({key: self._infer_value_type(value)})
+                i += 1
+                continue
+            
+            # PRIORITY 2: Check for simple list item (- value or * value) 
+            # before general key:value matching
+            simple_list_match = re.match(r'^[-\*•]\s+([^:=]+)$', stripped)
+            if simple_list_match and current_parent_key:
+                item = simple_list_match.group(1).strip()
+                in_array_context = True
+                
+                if current_parent_key not in current_record:
+                    current_record[current_parent_key] = []
+                
+                if not isinstance(current_record[current_parent_key], list):
+                    prev_value = current_record[current_parent_key]
+                    current_record[current_parent_key] = [prev_value] if prev_value else []
+                
+                current_record[current_parent_key].append(self._infer_value_type(item))
+                i += 1
+                continue
+            
+            # PRIORITY 3: Continuation of array item (indented key: value after - item)
+            if indent > 0 and current_array and len(current_array) > 0 and in_array_context:
+                cont_match = re.match(r'^([^:=]+)\s*[:=]\s*(.+)$', stripped)
+                if cont_match:
+                    key = cont_match.group(1).strip()
+                    value = cont_match.group(2).strip()
+                    # Add to last array item
+                    if isinstance(current_array[-1], dict):
+                        current_array[-1][key] = self._infer_value_type(value)
+                    i += 1
+                    continue
+            
+            # PRIORITY 4: Parse as key: value (top-level or nested object)
+            match = re.match(r'^([^:=]+)\s*[:=]\s*(.+)$', stripped)
+            if match:
+                key = match.group(1).strip()
+                value = match.group(2).strip()
+                
+                if indent == 0:
+                    # Top-level key with value
+                    current_parent_key = key
+                    current_array = None
+                    in_array_context = False
+                    current_record[key] = self._infer_value_type(value)
+                else:
+                    # Nested key - add to parent's structure (object, not array)
+                    if current_parent_key and not in_array_context:
+                        # Initialize nested structure if needed
+                        if current_parent_key not in current_record:
+                            current_record[current_parent_key] = {}
+                        
+                        # If parent is not a dict, convert it
+                        if not isinstance(current_record[current_parent_key], dict):
+                            if isinstance(current_record[current_parent_key], list):
+                                # Add to last array item
+                                if current_record[current_parent_key]:
+                                    current_record[current_parent_key][-1][key] = self._infer_value_type(value)
+                            else:
+                                prev_value = current_record[current_parent_key]
+                                current_record[current_parent_key] = {"_value": prev_value, key: self._infer_value_type(value)}
+                        else:
+                            current_record[current_parent_key][key] = self._infer_value_type(value)
+                i += 1
+                continue
+            
+            i += 1
+        
+        # Add last record
+        if current_record:
+            records.append(current_record)
+        
+        return records
+    
+    def _infer_value_type(self, value: str) -> Any:
+        """Infer and convert value to appropriate Python type"""
+        value = value.strip()
+        
+        # Boolean
+        if value.lower() in ['true', 'yes', '1']:
+            return True
+        elif value.lower() in ['false', 'no', '0']:
+            return False
+        
+        # Null
+        elif value.lower() in ['null', 'none', '']:
+            return None
+        
+        # Integer
+        try:
+            if '.' not in value:
+                return int(value)
+        except (ValueError, AttributeError):
+            pass
+        
+        # Float
+        try:
+            return float(value)
+        except (ValueError, AttributeError):
+            pass
+        
+        # String (default)
+        return value
+    
     def parse_plain_text(self, content: str, schema_fields: List[str]) -> List[Dict[str, Any]]:
         """
         Parse plain text by splitting on newlines and mapping to schema fields
@@ -193,6 +518,8 @@ class DataImportService:
             data = self.parse_csv(content, '|')
         elif format_type == 'semicolon':
             data = self.parse_csv(content, ';')
+        elif format_type == 'structured_text':
+            data = self.parse_structured_text(content)
         elif format_type == 'excel':
             if not file_bytes:
                 raise ValueError("File bytes required for Excel format")

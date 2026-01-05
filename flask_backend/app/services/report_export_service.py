@@ -114,26 +114,46 @@ class ReportExportService:
             fields = list(data[0].keys())
 
         num_cols = len(fields)
-        # Helper function to wrap text after 3-4 words
+        # Helper function to wrap text intelligently
         def wrap_text(text, max_words=4):
             if not text or text is None:
                 return ''
             text = str(text).strip()
             if not text:
                 return ''
+            # First try word-based wrapping
             words = text.split()
             if len(words) <= max_words:
                 return text
+            
+            # For very long text, wrap at character level too
             lines = []
-            for i in range(0, len(words), max_words):
-                lines.append(' '.join(words[i:i+max_words]))
+            chars_per_line = 80 if max_words >= 4 else 60
+            current_line = ""
+            for word in words:
+                if len(current_line) + len(word) + 1 <= chars_per_line:
+                    current_line = current_line + " " + word if current_line else word
+                else:
+                    if current_line:
+                        lines.append(current_line)
+                    # Split very long words
+                    if len(word) > chars_per_line:
+                        for i in range(0, len(word), chars_per_line):
+                            lines.append(word[i:i+chars_per_line])
+                    else:
+                        current_line = word
+            if current_line:
+                lines.append(current_line)
             return '\n'.join(lines)
 
         # Get column labels
         column_labels = pdf_config.get('column_labels', {})
         headers = [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
 
-        if num_cols > 8:
+        # Check if force vertical layout is requested
+        force_vertical = pdf_config.get('force_vertical_layout', False)
+
+        if force_vertical or num_cols > 8:
             # Vertical table layout: each record as a 2-column table (Field, Value)
             for idx, row in enumerate(data):
                 record_table_data = []
@@ -156,14 +176,14 @@ class ReportExportService:
                     ('TEXTCOLOR', (0, 0), (0, -1), colors.whitesmoke),
                     ('ALIGN', (0, 0), (0, -1), 'RIGHT'),
                     ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (0, -1), 9),
+                    ('FONTSIZE', (0, 0), (0, -1), 10),
                     ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                     ('BACKGROUND', (1, 0), (1, -1), colors.white),
                     ('TEXTCOLOR', (1, 0), (1, -1), colors.black),
                     ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
-                    ('FONTSIZE', (1, 0), (1, -1), 8),
-                    ('TOPPADDING', (0, 0), (-1, -1), 4),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                    ('FONTSIZE', (1, 0), (1, -1), 10),
+                    ('TOPPADDING', (0, 0), (-1, -1), 6),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                     ('GRID', (0, 0), (-1, -1), 0.4, colors.grey),
                 ]))
                 elements.append(Paragraph(f"<b>Record {idx+1}</b>", styles['Heading4']))
@@ -193,16 +213,16 @@ class ReportExportService:
                 ideal_col_width = min_col_width
             col_widths = [ideal_col_width] * num_cols
             table = Table(table_data, colWidths=col_widths, repeatRows=1)
-            header_fontsize = 10 if num_cols <= 6 else 8 if num_cols <= 10 else 7
-            data_fontsize = 9 if num_cols <= 6 else 7 if num_cols <= 10 else 6
+            header_fontsize = 11 if num_cols <= 6 else 10 if num_cols <= 8 else 9 if num_cols <= 10 else 8
+            data_fontsize = 10 if num_cols <= 6 else 9 if num_cols <= 8 else 8 if num_cols <= 10 else 7
             table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1976d2')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), header_fontsize),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                ('TOPPADDING', (0, 0), (-1, 0), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('TOPPADDING', (0, 0), (-1, 0), 10),
                 ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
                 ('WORDWRAP', (0, 0), (-1, 0), 'LR'),
                 ('BACKGROUND', (0, 1), (-1, -1), colors.white),
@@ -210,8 +230,8 @@ class ReportExportService:
                 ('ALIGN', (0, 1), (-1, -1), 'LEFT'),
                 ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
                 ('FONTSIZE', (0, 1), (-1, -1), data_fontsize),
-                ('TOPPADDING', (0, 1), (-1, -1), 6),
-                ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+                ('TOPPADDING', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
                 ('VALIGN', (0, 1), (-1, -1), 'TOP'),
                 ('WORDWRAP', (0, 1), (-1, -1), 'LR'),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
@@ -334,7 +354,7 @@ class ReportExportService:
             is_bulk_format = data and 'row_index' in data[0]
             
             if is_bulk_format:
-                headers = ['Record ID', 'Record Name', 'Row #', 'Created'] + [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
+                headers = ['Record Name', 'Row #', 'Created'] + [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
             else:
                 headers = ['ID', 'Name', 'Created'] + [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
             
@@ -344,7 +364,6 @@ class ReportExportService:
                 for idx, row in enumerate(data):
                     record_table_data = []
                     if is_bulk_format:
-                        record_table_data.append(['Record ID', str(row.get('record_id', ''))])
                         record_table_data.append(['Record Name', str(row.get('record_name', ''))])
                         record_table_data.append(['Row #', str(row.get('row_index', ''))])
                     else:
@@ -352,7 +371,7 @@ class ReportExportService:
                         record_table_data.append(['Name', str(row.get('name', ''))])
                     record_table_data.append(['Created', str(row.get('created_at', ''))[:10]])
                     for i, field in enumerate(fields):
-                        label = headers[i+3]  # offset by 3 for ID, Name, Created
+                        label = headers[i+2]  # offset by 2 for Name, Row #, Created
                         value = row.get(field, None)
                         if value is None and isinstance(row.get('values'), dict):
                             value = row['values'].get(field, '')
@@ -389,7 +408,6 @@ class ReportExportService:
                 for row in data:
                     if is_bulk_format:
                         table_row = [
-                            str(row.get('record_id', '')),
                             wrap_text_multi(str(row.get('record_name', '')), max_words=2),
                             str(row.get('row_index', '')),
                             str(row.get('created_at', ''))[:10]

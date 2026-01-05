@@ -1,0 +1,159 @@
+patient_id: PAT-1001
+patient_name: Ramesh Kumar
+age: 45
+gender: Male
+blood_group: O+
+admission_date: 2025-01-01T10:30:00Z
+department: Cardiology
+status: Active
+
+personal_info:
+  email: ramesh.kumar@email.com
+  phone: +91-9876543210
+  address: 123 Main Street, Mumbai
+  emergency_contact: Priya Kumar (Sister)
+
+medical_history:
+  - condition: Hypertension
+    diagnosed_date: 2020-05-10
+    medication: Lisinopril 10mg
+  - condition: Diabetes Type-2
+    diagnosed_date: 2019-03-15
+    medication: Metformin 500mg
+
+current_admission:
+  admission_reason: Chest pain, routine checkup
+  room_number: 302
+  attending_doctor: Dr. Vikram Patel
+  bed_assignment_date: 2025-01-01
+
+vital_signs:
+  - recorded_at: 2025-01-01T11:00:00Z
+    temperature_celsius: 37.2
+    blood_pressure: 140/90
+    heart_rate: 72
+    oxygen_saturation: 98
+
+  - recorded_at: 2025-01-01T15:00:00Z
+    temperature_celsius: 36.9
+    blood_pressure: 138/88
+    heart_rate: 70
+    oxygen_saturation: 99
+
+tests_conducted:
+  - test_name: ECG
+    conducted_date: 2025-01-01T12:00:00Z
+    result: Normal
+    notes: No significant abnormalities
+
+  - test_name: Blood Panel
+    conducted_date: 2025-01-01T12:30:00Z
+    result: Pending
+    notes: Awaiting lab analysis
+
+medications_prescribed:
+  - medicine_name: Aspirin
+    dosage: 100mg
+    frequency: Daily
+    prescribed_date: 2025-01-01
+
+---
+
+patient_id: PAT-1002
+patient_name: Anjali Sharma
+age: 32
+gender: Female
+blood_group: A+
+admission_date: 2025-01-02T09:15:00Z
+department: Obstetrics
+status: Active
+
+personal_info:
+  email: anjali.s@email.com
+  phone: +91-9876543211
+  address: 456 Park Avenue, Delhi
+  emergency_contact: Suresh Sharma (Husband)
+
+medical_history:
+  - condition: Gestational Diabetes
+    diagnosed_date: 2024-10-20
+    medication: Dietary control
+
+current_admission:
+  admission_reason: Pregnancy checkup, monitoring
+  room_number: 405
+  attending_doctor: Dr. Meera Singh
+  bed_assignment_date: 2025-01-02
+
+vital_signs:
+  - recorded_at: 2025-01-02T10:00:00Z
+    temperature_celsius: 36.8
+    blood_pressure: 120/80
+    heart_rate: 80
+    oxygen_saturation: 99
+
+ultrasound_reports:
+  - conducted_date: 2025-01-02T11:00:00Z
+    findings: Fetal development normal
+    gestational_age_weeks: 28
+    fetal_weight_grams: 1100
+
+medications_prescribed:
+  - medicine_name: Prenatal Vitamins
+    dosage: 1 tablet
+    frequency: Daily
+    prescribed_date: 2025-01-02
+
+---
+
+patient_id: PAT-1003
+patient_name: Suresh Desai
+age: 68
+gender: Male
+blood_group: B-
+admission_date: 2025-01-03T14:45:00Z
+department: Orthopedics
+status: Recovery
+
+personal_info:
+  email: suresh.d@email.com
+  phone: +91-9876543212
+  address: 789 Oak Street, Bangalore
+  emergency_contact: Neha Desai (Daughter)
+
+medical_history:
+  - condition: Osteoporosis
+    diagnosed_date: 2018-08-10
+    medication: Calcium supplements
+
+current_admission:
+  admission_reason: Hip replacement surgery
+  room_number: 210
+  attending_doctor: Dr. Arjun Verma
+  bed_assignment_date: 2025-01-03
+
+vital_signs:
+  - recorded_at: 2025-01-03T15:30:00Z
+    temperature_celsius: 37.5
+    blood_pressure: 145/95
+    heart_rate: 88
+    oxygen_saturation: 97
+
+surgical_details:
+  procedure_name: Total Hip Replacement
+  surgery_date: 2025-01-03T06:00:00Z
+  surgeon: Dr. Arjun Verma
+  anesthesia_type: General
+  duration_minutes: 120
+
+post_operative_care:
+  - date: 2025-01-03T19:00:00Z
+    observation: Stable after surgery
+    pain_level: 6/10
+    notes: Painkiller administered
+
+medications_prescribed:
+  - medicine_name: Paracetamol
+    dosage: 500mg
+    frequency: Every 6 hours
+    prescribed_date: 2025-01-03

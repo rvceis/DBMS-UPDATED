@@ -781,8 +781,9 @@ def import_file():
                     
                     similarity = max(0, fields_in_schema_percent - extra_field_penalty)
                     
-                    # Show if at least 50% of data fields match
-                    if len(matching_fields) >= len(data_fields_set) * 0.5:
+                    # Show schemas with ANY matching fields (at least 1 field matches)
+                    # User can always choose to create new schema
+                    if len(matching_fields) >= 1:
                         similar_schemas.append({
                             'schema_id': existing_schema.id,
                             'schema_name': existing_schema.name,
@@ -795,6 +796,8 @@ def import_file():
             
             # Sort by similarity descending
             similar_schemas.sort(key=lambda x: x['similarity'], reverse=True)
+            # Limit to top 10 to avoid overwhelming UI
+            similar_schemas = similar_schemas[:10]
         
         suggested_fields = import_service.suggest_schema_fields(parsed_data)
         

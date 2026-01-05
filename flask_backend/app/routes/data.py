@@ -356,18 +356,18 @@ def bulk_preview_data():
         
         similarity = max(0, fields_in_schema_percent - extra_field_penalty)
         
-        # Include if at least 50% of data fields match
-        if len(matching_fields) >= len(keys) * 0.5:
+        # Include if there is any overlap; UI will sort by similarity
+        if len(matching_fields) >= 1:
             new_fields = list(new_fields_in_data)
             missing_fields = list(missing_fields_in_data)
             
             similar_schemas.append({
                 'schema_id': schema.id,
                 'schema_name': schema.name,
-                    'similarity': similarity,
-                    'new_fields': new_fields,
-                    'missing_fields': missing_fields,
-                })
+                'similarity': similarity,
+                'new_fields': new_fields,
+                'missing_fields': missing_fields,
+            })
     
     # Sort by similarity descending
     similar_schemas.sort(key=lambda x: x['similarity'], reverse=True)

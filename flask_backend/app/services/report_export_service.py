@@ -150,6 +150,21 @@ class ReportExportService:
         column_labels = pdf_config.get('column_labels', {})
         headers = [column_labels.get(f, f.replace('_', ' ').title()) for f in fields]
 
+        # Drop columns that are completely empty to avoid blank grids in PDF output
+        def _has_value(row: Dict, field: str) -> bool:
+            val = row.get(field)
+            if val is None and isinstance(row.get('values'), dict):
+                val = row['values'].get(field)
+            if val is None:
+                return False
+            if isinstance(val, (list, dict)):
+                return len(val) > 0
+            return str(val).strip() != ''
+
+        filtered_fields = [f for f in fields if any(_has_value(r, f) for r in data)] or fields
+        filtered_headers = [column_labels.get(f, f.replace('_', ' ').title()) for f in filtered_fields]
+        num_cols = len(filtered_fields)
+
         # Check if force vertical layout is requested
         force_vertical = pdf_config.get('force_vertical_layout', False)
 
@@ -157,8 +172,8 @@ class ReportExportService:
             # Vertical table layout: each record as a 2-column table (Field, Value)
             for idx, row in enumerate(data):
                 record_table_data = []
-                for i, field in enumerate(fields):
-                    label = headers[i]
+                for i, field in enumerate(filtered_fields):
+                    label = filtered_headers[i]
                     # Try direct, then nested under 'values', then ''
                     value = row.get(field, None)
                     if value is None and isinstance(row.get('values'), dict):
@@ -191,10 +206,10 @@ class ReportExportService:
                 elements.append(Spacer(1, 0.18*inch))
         else:
             # Normal horizontal table layout
-            table_data = [headers]
+            table_data = [filtered_headers]
             for row in data:
                 table_row = []
-                for field in fields:
+                for field in filtered_fields:
                     value = row.get(field, None)
                     if value is None and isinstance(row.get('values'), dict):
                         value = row['values'].get(field, '')

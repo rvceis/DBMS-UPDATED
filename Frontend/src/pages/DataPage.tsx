@@ -167,7 +167,7 @@ export default function DataPage() {
       if (!finalSchemaId && !createNewSchema) {
         const dataKeys = new Set(Object.keys(parsed));
         
-        // Calculate similarity for each schema (50%+ match)
+        // Calculate similarity for each schema (surface anything with at least 1 matching field)
         const matches = schemas
           .map(s => {
             if (!s.fields) return null;
@@ -176,7 +176,7 @@ export default function DataPage() {
             const totalFields = new Set([...dataKeys, ...schemaFields]).size;
             const similarity = totalFields > 0 ? (matchingFields / totalFields) * 100 : 0;
             
-            return similarity >= 50 ? { ...s, similarity } : null;
+            return matchingFields >= 1 ? { ...s, similarity } : null;
           })
           .filter((s): s is any => s !== null)
           .sort((a, b) => b.similarity - a.similarity);
@@ -481,14 +481,14 @@ export default function DataPage() {
                 </TableCell>
               </TableRow>
             )}
-            {records.map((record) => (
+            {records.map((record, idx) => (
               <TableRow
                 key={record.id}
                 hover
                 sx={{ cursor: 'pointer' }}
                 onClick={() => handleRowClick(record)}
               >
-                <TableCell>{record.id}</TableCell>
+                <TableCell>{idx + 1}</TableCell>
                 <TableCell>{record.name}</TableCell>
                 <TableCell>
                   {schemas.find((s) => s.id === record.schema_id)?.name || `Schema ${record.schema_id}`}

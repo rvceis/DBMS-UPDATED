@@ -192,6 +192,7 @@ class DataImportService:
         
         print(f"\n🔍 CSV PARSE DEBUG:")
         print(f"   Input content length: {len(content)} chars")
+        print(f"   Line count: {content.count(chr(10)) + 1}")
         print(f"   Delimiter: '{delimiter}'")
         
         reader = csv.DictReader(io.StringIO(content), delimiter=delimiter)

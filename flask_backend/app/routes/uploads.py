@@ -714,6 +714,10 @@ def import_file():
         file_content = file.read()
         if not file_content:
             return jsonify({'error': 'File is empty'}), 400
+        
+        print(f"\n📂 IMPORT-FILE DEBUG:")
+        print(f"   Filename: {file.filename}")
+        print(f"   File size: {len(file_content)} bytes")
             
         filename = file.filename
         

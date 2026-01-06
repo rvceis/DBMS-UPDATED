@@ -77,7 +77,7 @@ class SchemaField(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     schema_id = db.Column(db.Integer, db.ForeignKey("schemas.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     field_name = db.Column(db.String(128), nullable=False)
-    field_type = db.Column(db.String(50), nullable=False)  # string, integer, float, boolean, date, json, array
+    field_type = db.Column(db.String(50), nullable=False)  # string, text, integer, float, boolean, date, datetime, time, json, array, object, file, image, binary, url, email, phone, enum
     is_required = db.Column(db.Boolean, default=False)
     default_value = db.Column(db.String(255), nullable=True)
     constraints = db.Column(db.JSON, nullable=True)  # {"min": 0, "max": 100, "regex": "...", "enum": [...]}
@@ -222,6 +222,7 @@ class FieldValue(db.Model):
     value_bool = db.Column(db.Boolean, nullable=True)
     value_date = db.Column(db.DateTime, nullable=True)
     value_json = db.Column(db.JSON, nullable=True)  # For arrays and objects
+    value_binary = db.Column(db.LargeBinary, nullable=True)  # For files, images, binary data
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -233,7 +234,7 @@ class FieldValue(db.Model):
     def get_value(self):
         """Get the value based on field type"""
         field_type = self.schema_field.field_type
-        if field_type == 'string':
+        if field_type in ('string', 'text', 'url', 'email', 'phone', 'enum'):
             return self.value_text
         elif field_type == 'integer':
             return self.value_int
@@ -241,10 +242,16 @@ class FieldValue(db.Model):
             return self.value_float
         elif field_type == 'boolean':
             return self.value_bool
-        elif field_type == 'date':
+        elif field_type in ('date', 'datetime', 'time'):
             return self.value_date.isoformat() if self.value_date else None
         elif field_type in ('json', 'array', 'object'):
             return self.value_json
+        elif field_type in ('file', 'image', 'binary'):
+                    # Return base64 encoded string for API transport
+                    if self.value_binary:
+                        import base64
+                        return base64.b64encode(self.value_binary).decode('utf-8')
+                    return None
         return None
     
     def set_value(self, value):
@@ -257,20 +264,24 @@ class FieldValue(db.Model):
         self.value_bool = None
         self.value_date = None
         self.value_json = None
+        self.value_binary = None
         
         # Set the appropriate value
         if value is None:
             return
         
-        if field_type == 'string':
+        if field_type in ('string', 'text', 'url', 'email', 'phone', 'enum'):
             self.value_text = str(value)
         elif field_type == 'integer':
             self.value_int = int(value)
         elif field_type == 'float':
             self.value_float = float(value)
         elif field_type == 'boolean':
-            self.value_bool = bool(value)
-        elif field_type == 'date':
+            if isinstance(value, str):
+                self.value_bool = value.lower() in ('true', '1', 'yes', 'on')
+            else:
+                self.value_bool = bool(value)
+        elif field_type in ('date', 'datetime', 'time'):
             if isinstance(value, str):
                 from dateutil import parser
                 self.value_date = parser.parse(value)
@@ -278,6 +289,17 @@ class FieldValue(db.Model):
                 self.value_date = value
         elif field_type in ('json', 'array', 'object'):
             self.value_json = value
+        elif field_type in ('file', 'image', 'binary'):
+            # Handle base64 encoded binary data or raw bytes
+            if isinstance(value, str):
+                # Assume base64 encoded string
+                import base64
+                self.value_binary = base64.b64decode(value)
+            elif isinstance(value, bytes):
+                self.value_binary = value
+            else:
+                # Store as string representation (e.g., file path)
+                self.value_text = str(value)
 
 
 class ChangeLog(db.Model):

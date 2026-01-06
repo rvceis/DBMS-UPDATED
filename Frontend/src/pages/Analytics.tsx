@@ -79,32 +79,40 @@ export const Analytics = () => {
         if (!res.ok) throw new Error((await res.text()) || 'Request failed');
         return res.json();
       };
-      const [s, bat, tl, ta, ra] = await Promise.all([
-        fetch('/api/analytics/dashboard', { headers }).then(safeJson),
-        fetch('/api/analytics/data-by-asset-type', { headers }).then(safeJson),
-        fetch('/api/analytics/data-timeline', { headers }).then(safeJson),
-        fetch('/api/analytics/top-asset-types', { headers }).then(safeJson),
-        fetch('/api/analytics/recent-activity', { headers }).then(safeJson),
-      ]);
-      setStats(s);
-      setByAssetType(bat);
-      setTimeline(tl);
-      setTopTypes(ta);
-      setRecent(ra);
-      // Admin-only aggregated user activity
       try {
-        if (user?.role === 'admin') {
-          const ua = await fetch('/api/analytics/user-activity', { headers }).then(safeJson);
-          setUserActivity(ua);
-        } else {
+        const [s, bat, tl, ta, ra] = await Promise.all([
+          fetch('/api/analytics/dashboard', { headers }).then(safeJson),
+          fetch('/api/analytics/data-by-asset-type', { headers }).then(safeJson),
+          fetch('/api/analytics/data-timeline', { headers }).then(safeJson),
+          fetch('/api/analytics/top-asset-types', { headers }).then(safeJson),
+          fetch('/api/analytics/recent-activity', { headers }).then(safeJson),
+        ]);
+        setStats(s);
+        console.log('📊 Analytics data:', { bat, tl, ta, ra });
+        setByAssetType(bat || []);
+        setTimeline(tl || []);
+        setTopTypes(ta || []);
+        setRecent(ra || []);
+        // Admin-only aggregated user activity
+        try {
+          if (user?.role === 'admin') {
+            const ua = await fetch('/api/analytics/user-activity', { headers }).then(safeJson);
+            setUserActivity(ua || []);
+          } else {
+            setUserActivity([]);
+          }
+        } catch (e) {
+          console.warn('user-activity fetch failed', e);
           setUserActivity([]);
         }
       } catch (e) {
-        console.warn('user-activity fetch failed', e);
+        console.error('Analytics fetch error:', e);
       }
     };
-    fetchAnalytics().catch(console.error);
-  }, [token]);
+    if (token) {
+      fetchAnalytics();
+    }
+  }, [token, user?.role]);
 
   // Simple relationship graph layout: columns for AssetType -> Schema -> Metadata
   const relationGraph = useMemo(() => {
@@ -201,7 +209,7 @@ export const Analytics = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                     <YAxis allowDecimals={false} />
-                    <Tooltip />
+                    <Tooltip formatter={(value) => `${value} records`} />
                     <Line type="monotone" dataKey="records" stroke="#6366F1" strokeWidth={2} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -227,7 +235,7 @@ export const Analytics = () => {
                         <Cell key={i} fill={COLORS[i % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip formatter={(value) => `${value} records`} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
@@ -251,7 +259,7 @@ export const Analytics = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis allowDecimals={false} />
-                    <Tooltip />
+                    <Tooltip formatter={(value) => `${value} records`} />
                     <Bar dataKey="count" fill="#10B981" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -333,7 +341,7 @@ export const Analytics = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="username" />
                       <YAxis allowDecimals={false} />
-                      <Tooltip />
+                      <Tooltip formatter={(value) => `${value} records`} />
                       <Bar dataKey="count" fill="#6366F1" />
                     </BarChart>
                   </ResponsiveContainer>

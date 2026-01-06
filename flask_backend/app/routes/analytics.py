@@ -88,7 +88,7 @@ def get_data_by_asset_type():
     query = query.group_by(AssetType.name)
     
     result = [{"name": name or "Unassigned", "value": count} 
-              for name, count in query.all()]
+              for name, count in query.all() if count and count > 0]
     
     return jsonify(result)
 
@@ -137,7 +137,7 @@ def get_data_timeline():
     
     query = query.group_by(func.date(MetadataRecord.created_at)).order_by('date')
     
-    result = [{"date": date.isoformat(), "records": count} 
+    result = [{"date": date.isoformat() if date else None, "records": count or 0} 
               for date, count in query.all()]
     
     return jsonify(result)
@@ -191,7 +191,7 @@ def get_top_asset_types():
         func.count(MetadataRecord.id).desc()
     ).limit(5)
     
-    result = [{"name": name or "Unassigned", "count": count} 
+    result = [{"name": name or "Unassigned", "count": count or 0} 
               for name, count in query.all()]
     
     return jsonify(result)
@@ -212,7 +212,7 @@ def get_user_activity():
         func.count(MetadataRecord.id).label('count')
     ).outerjoin(MetadataRecord, User.id == MetadataRecord.created_by).group_by(User.username)
     
-    result = [{"username": username or "Unknown", "count": count} 
+    result = [{"username": username or "Unknown", "count": count or 0} 
               for username, count in query.all()]
     
     return jsonify(result)

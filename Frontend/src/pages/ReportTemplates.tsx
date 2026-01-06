@@ -46,10 +46,6 @@ export const ReportTemplates = () => {
     }
   };
 
-  const isTemplateConfigured = (template: any) => {
-    return template.schema_id || (template.table_configs && template.table_configs.length > 0);
-  };
-
   const handleDelete = async () => {
     if (!deleteDialog.id) return;
     try {
@@ -137,8 +133,8 @@ export const ReportTemplates = () => {
                       variant="outlined"
                       startIcon={<FileText size={16} />}
                       onClick={() => handleGenerate(template.id, 'csv')}
-                      disabled={generating === template.id || !isTemplateConfigured(template)}
-                      title={!isTemplateConfigured(template) ? 'Template not configured. Edit to add schema.' : 'Generate CSV report'}
+                      disabled={generating === template.id}
+                      title="Generate CSV report"
                     >
                       CSV
                     </Button>
@@ -147,8 +143,8 @@ export const ReportTemplates = () => {
                       variant="outlined"
                       startIcon={<FileType size={16} />}
                       onClick={() => handleGenerate(template.id, 'pdf')}
-                      disabled={generating === template.id || !isTemplateConfigured(template)}
-                      title={!isTemplateConfigured(template) ? 'Template not configured. Edit to add schema.' : 'Generate PDF report'}
+                      disabled={generating === template.id}
+                      title="Generate PDF report"
                     >
                       PDF
                     </Button>

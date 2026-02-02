@@ -1,0 +1,5 @@
+﻿employee_id,first_name,last_name,email,department,salary,hire_date,team_members
+EMP-0001,John,Smith,john.smith@company.com,Engineering,85000,2020-03-15,
+EMP-0002,Bob,Williams,bob.w@company.com,Engineering,72000,2021-06-20,
+,,,,,,,[]
+EMP-0003,Carol,Davis,carol.d@company.com,Marketing,65000,2022-01-10,

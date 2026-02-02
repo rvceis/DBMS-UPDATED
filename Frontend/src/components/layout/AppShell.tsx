@@ -1,4 +1,4 @@
-import { Box, Container, Toolbar } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 
@@ -11,11 +11,11 @@ export const AppShell = ({ children }: AppShellProps) => {
     <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: 'background.default' }}>
       <Header />
       <Sidebar />
-      <Box component="main" sx={{ flex: 1, overflow: 'auto' }}>
+      <Box component="main" sx={{ flex: 1, overflow: 'auto', width: '100%' }}>
         <Toolbar />
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Box sx={{ width: '100%', p: 2 }}>
           {children}
-        </Container>
+        </Box>
       </Box>
     </Box>
   );

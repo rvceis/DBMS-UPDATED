@@ -1,0 +1,200 @@
+VERIFICATION CHECKLIST
+======================
+
+RUN THIS AFTER APPLYING FIXES
+==============================
+
+[ ] Step 1: Verify Backend Running
+    Command: Check terminal output shows "Running on http://127.0.0.1:5000"
+    Expected: Backend listening on port 5000
+
+[ ] Step 2: Verify Frontend Running  
+    Command: Check terminal output shows "Local: http://localhost:5173"
+    Expected: Frontend available at localhost:5173
+
+[ ] Step 3: Run Setup Script
+    Command: python3 setup_complete_database.py
+    Expected: 
+      ✅ Asset types created (8)
+      ✅ Schemas created (5)
+      ✅ Records inserted (25)
+      ✅ No errors in output
+
+[ ] Step 4: Refresh Browser
+    Action: Ctrl+R or Cmd+R on UI
+    Expected: Page loads without errors
+
+[ ] Step 5: Verify Dark Theme Works
+    Action: Navigate to Settings (if available)
+    Expected: Dark mode renders correctly
+    Check: 
+      - Text visible in dark theme
+      - Components properly styled
+      - No contrast issues
+
+[ ] Step 6: Verify Full-Width Layout
+    Action: Navigate to Data > Records page
+    Expected:
+      - Table spans full width
+      - Columns properly distributed
+      - No content squeezing
+      - Filters take full width
+      - Card content at 100% width
+
+[ ] Step 7: Verify No 404 Errors
+    Action: Open Browser DevTools Console (F12)
+    Expected:
+      - No "404" errors shown
+      - No "/schemas/detail/" errors
+      - Network tab shows successful requests
+
+[ ] Step 8: Verify Sample Data Loaded
+    Action: Go to Data > Records
+    Expected:
+      - 25 total records shown
+      - Records from all 5 schemas visible
+      - Asset type column shows proper values
+      - Created dates show recent dates
+
+[ ] Step 9: Verify Asset Types Visible
+    Action: Apply filter or create new schema
+    Expected:
+      - Asset type dropdown shows multiple options
+      - Can select from available types
+      - Asset type applies to records
+
+[ ] Step 10: Verify Schema Export Works
+    Action: Go to Schemas, find any schema, click export
+    Expected:
+      - JSON export downloads with all fields
+      - SQL export shows CREATE TABLE statement
+      - No null values in exports
+      - Proper field definitions included
+
+[ ] Step 11: Verify Responsive Layout
+    Action: Resize browser window
+    Expected:
+      - Layout remains responsive
+      - Table scrolls horizontally if needed
+      - Components adapt to screen size
+      - Mobile view works (if applicable)
+
+[ ] Step 12: Verify Record Creation
+    Action: Click "New Record" button
+    Expected:
+      - Dialog opens correctly
+      - Schema selector shows all schemas
+      - Asset type selector visible
+      - Can fill and submit form
+
+[ ] Step 13: Verify Record Editing
+    Action: Click edit icon on any record
+    Expected:
+      - Editor dialog opens
+      - Schema fields display correctly
+      - No errors in console
+      - Can save changes
+
+[ ] Step 14: Verify Filters Work
+    Action: Use filter dropdowns
+    Expected:
+      - Can filter by asset type
+      - Can search by name
+      - Results update correctly
+      - Clear filters button works
+
+[ ] Step 15: Verify Data Operations
+    Action: Test data import
+    Expected:
+      - Import dialog appears
+      - Can select file format
+      - Can upload/paste data
+      - Records appear after import
+
+
+COMMON VERIFICATION ERRORS
+===========================
+
+Error: "Failed to authenticate"
+Check:
+  [ ] Backend is running
+  [ ] Credentials are correct
+  [ ] No special characters in password
+Solution: Try with default credentials (admin@admin.com/admin123)
+
+Error: "No records showing"
+Check:
+  [ ] Setup script completed successfully
+  [ ] Browser refresh done
+  [ ] Check server logs for errors
+  [ ] Verify database connection
+Solution: Run setup script again, then refresh browser
+
+Error: "404 errors in console"
+Check:
+  [ ] AdvancedRecordEditor.tsx is fixed
+  [ ] No other components calling /schemas/detail/
+Solution: These should be gone after fixes applied
+
+Error: "Layout still small/constrained"
+Check:
+  [ ] AppShell.tsx is updated
+  [ ] Metadata.tsx is updated
+  [ ] Browser cache cleared (Ctrl+Shift+R)
+Solution: Hard refresh browser, verify files were edited
+
+Error: "Dark theme looks wrong"
+Check:
+  [ ] Component uses correct theme colors
+  [ ] No inline styles overriding theme
+  [ ] CSS not conflicting
+Solution: Check browser theme setting, toggle in settings
+
+
+PERFORMANCE CHECKS
+==================
+
+[ ] Page loads in < 2 seconds
+[ ] Table renders with 25 records without lag
+[ ] Filters respond immediately
+[ ] No console warnings (except safe warnings)
+[ ] Network requests complete successfully
+[ ] Database queries execute quickly
+
+
+BROWSER COMPATIBILITY
+=====================
+
+Test in:
+[ ] Chrome/Edge (latest)
+[ ] Firefox (latest)
+[ ] Safari (if available)
+
+Expected: All features work across browsers
+
+
+FINAL VALIDATION
+================
+
+After All Checks Pass:
+
+✓ System is fully operational
+✓ All asset types supported
+✓ Layout is responsive and full-width
+✓ Dark theme working
+✓ No 404 errors
+✓ Sample data loaded
+✓ All CRUD operations working
+✓ Export/import functional
+✓ Database properly initialized
+
+
+SIGN OFF
+========
+
+After verification, the project is ready for:
+✓ Development
+✓ Testing
+✓ Deployment
+✓ User acceptance
+✓ Production use

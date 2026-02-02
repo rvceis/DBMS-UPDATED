@@ -1,0 +1,310 @@
+EXACT COMMANDS TO RUN
+=====================
+
+Copy and paste these commands exactly as shown.
+
+
+STEP 1: START BACKEND
+=====================
+Terminal 1:
+```
+cd /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/flask_backend
+python3 app.py
+```
+
+Wait for output:
+```
+* Running on http://127.0.0.1:5000
+```
+
+
+STEP 2: START FRONTEND  
+======================
+Terminal 2 (NEW terminal):
+```
+cd /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/Frontend
+npm run dev
+```
+
+Wait for output showing port 5173 or similar:
+```
+Local: http://localhost:5173
+```
+
+
+STEP 3: RUN DATABASE SETUP
+===========================
+Terminal 3 (NEW terminal):
+```
+cd /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT
+python3 setup_complete_database.py
+```
+
+When prompted, press Enter to use default credentials:
+```
+Email: [press Enter for admin@admin.com]
+Password: [press Enter for admin123]
+```
+
+Expected output:
+```
+✅ Authenticated as admin@admin.com
+✅ Creating Asset Types (8 total)
+✅ Creating Schemas (5 total)
+✅ Populating Records (25 total)
+✅ Database Setup Complete!
+```
+
+
+STEP 4: VERIFY IN BROWSER
+==========================
+
+Open browser to: http://localhost:5173
+
+Navigation:
+1. Click "Data" in left sidebar
+2. Click "Metadata Records" or similar
+3. You should see table with 25 records
+
+Expected to see:
+- E-Commerce Orders (5 records)
+- Employees (5 records)
+- IoT Sensors (5 records)
+- Inventory Products (5 records)
+- Hospital Patients (5 records)
+
+
+STEP 5: CHECK NO ERRORS
+=======================
+
+Open DevTools (F12):
+1. Go to Console tab
+2. Check for errors (should see none)
+3. Go to Network tab
+4. Check for 404 errors (should see none)
+5. Reload page (Ctrl+R)
+6. Still no errors? Perfect!
+
+
+ALTERNATIVE: IMPORT ASSETS ONLY
+================================
+
+If you just want to create asset types (without sample data):
+
+Terminal 3:
+```
+cd /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT
+python3 populate_asset_types.py
+```
+
+This creates 40+ asset types but no sample data.
+Then create schemas manually in the UI.
+
+
+VERIFY FIXES WERE APPLIED
+==========================
+
+Check files were edited correctly:
+
+1. Check AppShell.tsx:
+```
+grep "width: '100%" /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/Frontend/src/components/layout/AppShell.tsx
+```
+Should show: `<Box sx={{ width: '100%', p: 2 }}>`
+
+2. Check AdvancedRecordEditor.tsx:
+```
+grep "localhost:5000/schemas" /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/Frontend/src/components/AdvancedRecordEditor.tsx
+```
+Should show: `http://localhost:5000/schemas/${schemaId}`
+
+3. Check populate_database.py:
+```
+grep "asset_type_id" /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/populate_database.py | head -1
+```
+Should show: `"asset_type_id": asset_type_id,`
+
+
+TROUBLESHOOTING COMMANDS
+========================
+
+If something goes wrong:
+
+1. Check backend logs:
+   Look at Terminal 1 output for errors
+
+2. Check frontend build:
+   Look at Terminal 2 output for warnings
+
+3. Check database:
+   Setup script output will show errors
+
+4. Clear browser cache:
+   DevTools > Application > Clear Storage > Clear All
+
+5. Check port conflicts:
+   ```
+   lsof -i :5000    # Check if port 5000 in use
+   lsof -i :5173    # Check if port 5173 in use
+   ```
+
+6. Restart everything:
+   - Stop all three terminals (Ctrl+C)
+   - Wait 5 seconds
+   - Restart from Step 1
+
+
+FILE LOCATIONS
+==============
+
+Backend: /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/flask_backend/
+Frontend: /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/Frontend/
+Setup script: /home/akash/Desktop/DBMS_PROJECT/DBMS_LAB_PROJECT/setup_complete_database.py
+
+
+VERIFY EACH STEP
+================
+
+After Step 1 (Backend):
+  - Terminal shows "Running on http://127.0.0.1:5000"
+  - No errors in logs
+
+After Step 2 (Frontend):
+  - Terminal shows local URL
+  - No build errors
+  - Can see frontend in browser
+
+After Step 3 (Setup):
+  - All operations show ✅
+  - No errors at end
+  - Shows "Setup Complete!"
+
+After Step 4 (Browser):
+  - Data page loads
+  - Records visible
+  - 25 total shown
+
+After Step 5 (Check):
+  - No 404 errors
+  - Console clean
+  - No red error messages
+
+
+EXPECTED SUCCESS OUTPUT
+=======================
+
+Backend Terminal Should Show:
+```
+ * Running on http://127.0.0.1:5000
+ * Press CTRL+C to quit
+```
+
+Frontend Terminal Should Show:
+```
+VITE v4.x.x  ready in xxx ms
+
+➜  Local:   http://localhost:5173
+```
+
+Setup Script Should Show:
+```
+============================================================
+Creating Asset Types
+============================================================
+✅ Dataset (ID: 1)
+✅ 3D Model (ID: 2)
+... (more asset types)
+
+============================================================
+Creating Schemas and Populating Data
+============================================================
+📦 E-Commerce Orders
+✅ Schema: E-Commerce Orders (ID: X)
+  ✓ Inserted 5 records
+
+... (more schemas)
+
+============================================================
+✅ Database Setup Complete!
+============================================================
+```
+
+
+WHAT TO DO NEXT
+===============
+
+1. Explore the UI:
+   - Click on different records
+   - Try filters
+   - Check dark theme
+
+2. Create new record:
+   - Click "New Record"
+   - Fill in fields
+   - Save and verify
+
+3. Try export:
+   - Go to Schemas
+   - Click Export button
+   - Download as JSON/SQL
+
+4. Import data:
+   - Create new schema
+   - Click Import Data
+   - Upload CSV/JSON file
+
+5. Check themes:
+   - Toggle dark mode
+   - Verify layout is full width
+   - Check responsiveness
+
+
+COMMON SUCCESS INDICATORS
+==========================
+
+✅ Setup script completed without errors
+✅ No 404 errors in browser console
+✅ 25 records visible in Data page
+✅ Asset type dropdown populated
+✅ Filters work correctly
+✅ Dark theme renders properly
+✅ Layout spans full width
+✅ Can create new records
+✅ Export functionality works
+✅ Database responds quickly
+
+
+QUICK STATUS CHECK
+==================
+
+Run this to verify everything is set up:
+
+```bash
+# Check if backend has data
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:5000/data
+
+# Should return JSON with 25 records
+```
+
+Or just check in browser:
+- Data > Records page
+- Should show "25 total records"
+
+
+YOU'RE ALL SET!
+===============
+
+After running all commands successfully:
+
+✅ Backend running
+✅ Frontend running
+✅ Database initialized
+✅ 25 sample records loaded
+✅ 8 asset types created
+✅ 5 schemas defined
+✅ All bugs fixed
+✅ Full-width layout
+✅ Dark theme working
+✅ Ready to use
+
+Start exploring and creating your data!

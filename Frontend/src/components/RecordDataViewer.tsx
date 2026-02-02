@@ -150,6 +150,8 @@ export default function RecordDataViewer({ recordId, recordName, onClose }: Reco
   const handleExport = async (format: 'json' | 'csv' | 'excel') => {
     try {
       const token = localStorage.getItem('token');
+      
+      // Fetch all data for export
       const response = await axios.get(`/api/metadata/${recordId}/data`, {
         params: { per_page: totalRows || 100000 },
         headers: {
@@ -169,7 +171,7 @@ export default function RecordDataViewer({ recordId, recordName, onClose }: Reco
 
       if (format === 'json') {
         // Export as JSON
-        const jsonData = JSON.stringify(dataRows.map((r: any) => r.data), null, 2);
+        const jsonData = JSON.stringify(allData.map((r: any) => r.data), null, 2);
         blob = new Blob([jsonData], { type: 'application/json' });
         filename = `${recordName}_data.json`;
       } else {
@@ -218,6 +220,7 @@ export default function RecordDataViewer({ recordId, recordName, onClose }: Reco
       window.URL.revokeObjectURL(url);
       toast.success(`Data exported as ${format.toUpperCase()}`);
     } catch (error) {
+      console.error('Export error:', error);
       toast.error('Failed to export data');
     }
   };

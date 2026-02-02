@@ -1,0 +1,424 @@
+================================================================================
+ONLINE RESOURCES - 3D MODELS, DATASETS & CODE
+================================================================================
+
+QUICK START:
+================================================================================
+
+1. Create asset types:
+   python3 populate_asset_types.py
+
+2. Download 3D models/datasets from online sources (see below)
+
+3. Populate database with populate_database.py
+
+4. View in frontend at http://localhost:3000
+
+
+3D MODEL REPOSITORIES (FREE & OPEN):
+================================================================================
+
+1. Sketchfab - https://sketchfab.com
+   ✓ Format: GLTF, OBJ, FBX, BLEND
+   ✓ License: Various (check before downloading)
+   ✓ Quality: Professional to beginner
+   ✓ Filter: Free, Creative Commons
+   
+   Popular Collections:
+   - Low-poly models: https://sketchfab.com/search?q=low+poly&type=models
+   - 3D scenes: https://sketchfab.com/search?q=scene&type=models
+   - Characters: https://sketchfab.com/search?q=character&type=models
+
+2. TurboSquid Free - https://www.turbosquid.com/Search/3D-Models/free
+   ✓ Format: GLTF, OBJ, FBX, MAX, BLEND
+   ✓ Quality: Professional
+   ✓ License: Free for download
+   
+3. CGTrader Free - https://www.cgtrader.com/free-3d-models
+   ✓ Format: OBJ, FBX, BLEND, MAX
+   ✓ Quality: Professional
+   ✓ Categories: All types
+
+4. Free3D - https://free3d.com
+   ✓ Format: OBJ, 3DS, BLEND, FBX, MAX
+   ✓ License: Mix of CC and free
+   ✓ Quality: All levels
+
+5. Poly Haven - https://polyhaven.com/models
+   ✓ Format: BLEND, OBJ, FBX, GLTF
+   ✓ License: CC0 (Public Domain)
+   ✓ Quality: High professional quality
+   ✓ Great for textures too
+
+6. Quaternius - https://quaternius.com
+   ✓ Format: OBJ, BLEND, FBX
+   ✓ License: Free
+   ✓ Style: Low-poly
+
+7. OpenKinect 3D Models - https://openkinect.org/wiki/Bouncing_3D_Objects
+   ✓ Format: Various
+   ✓ License: Free/Open
+
+8. Thingiverse (3D Printing) - https://www.thingiverse.com
+   ✓ Format: STL, OBJ
+   ✓ License: Creative Commons
+   ✓ Type: Printable objects
+
+9. MyMiniFactory - https://www.myminifactory.com/objects
+   ✓ Format: STL, OBJ
+   ✓ License: Mix
+   ✓ Type: 3D print designs
+
+10. CGSpire - https://www.cgspire.com/free-models
+    ✓ Format: BLEND, OBJ, FBX, GLTF
+    ✓ Quality: Professional
+    ✓ License: Free (some restrictions)
+
+
+POINT CLOUD & MESH DATA:
+================================================================================
+
+1. Stanford 3D Scanning Repository
+   https://graphics.stanford.edu/data/3Dscanrep/
+   ✓ Format: PLY (Point cloud)
+   ✓ Type: Scanned real-world objects
+   ✓ License: Free for research
+
+2. PointNet Dataset
+   https://shapenet.org/
+   ✓ Format: OBJ, BLEND (with point clouds)
+   ✓ Type: 55k+ 3D models
+
+3. Open3D Datasets
+   http://open3d.org/docs/release/tutorial/geometry/file_io.html
+   ✓ Format: Various
+   ✓ Type: Sample 3D geometry
+
+4. LIDAR Point Clouds
+   https://www.opentopography.org/raster/SRTM_GL1/SRTM_GL1_srtm
+   ✓ Format: LAS, GeoTIFF
+   ✓ Type: Elevation/topography
+   ✓ License: Free/public domain
+
+5. Semantic Segmentation Datasets
+   http://www.semantic-kitti.org/
+   ✓ Format: BIN, PLY
+   ✓ Type: Autonomous driving
+   ✓ License: Creative Commons
+
+
+PUBLIC DATASETS (CSV, JSON, PARQUET):
+================================================================================
+
+1. Kaggle Datasets - https://www.kaggle.com/datasets
+   ✓ Format: CSV, JSON, XLSX, Parquet
+   ✓ Type: Thousands of datasets
+   ✓ Categories: All domains
+   ✓ License: Various
+   
+   Popular Datasets:
+   - Titanic: https://www.kaggle.com/datasets/tedlim/titanic
+   - Housing Prices: https://www.kaggle.com/c/house-prices-advanced-regression-techniques
+   - COVID-19: https://www.kaggle.com/datasets/imdevskp/corona-virus-report
+
+2. UCI Machine Learning Repository
+   https://archive.ics.uci.edu/ml/index.php
+   ✓ Format: CSV, ARFF
+   ✓ Type: ML datasets
+   ✓ License: Open
+
+3. Google Datasets Search
+   https://datasetsearch.research.google.com/
+   ✓ Format: Various
+   ✓ Type: Aggregate search across all providers
+
+4. GitHub Awesome Datasets
+   https://github.com/awesomedata/awesome-public-datasets
+   ✓ Format: Various
+   ✓ Type: Curated collections by category
+   ✓ License: Open
+
+5. Data.world - https://data.world/
+   ✓ Format: CSV, JSON, XLSX, Parquet, SQL
+   ✓ Type: Public & private datasets
+   ✓ License: Various
+
+6. FiveThirtyEight Data
+   https://github.com/fivethirtyeight/data
+   ✓ Format: CSV
+   ✓ Type: Journalism datasets
+   ✓ License: Creative Commons
+
+7. Our World in Data
+   https://ourworldindata.org/datasets
+   ✓ Format: CSV, JSON
+   ✓ Type: Global development data
+   ✓ License: Open
+
+8. OpenML - https://www.openml.org/
+   ✓ Format: ARFF, CSV
+   ✓ Type: Machine learning datasets
+   ✓ License: Open
+
+9. European Data Portal
+   https://data.europa.eu/
+   ✓ Format: Various
+   ✓ Type: European government data
+
+10. City/Government Open Data
+    - NYC Open Data: https://opendata.cityofnewyork.us/
+    - SF Data: https://datasf.org/opendata/
+    - UK Data: https://www.data.gov.uk/
+
+
+TIME-SERIES & SENSOR DATA:
+================================================================================
+
+1. UCI Time Series Archive
+   https://archive.ics.uci.edu/ml/time-series-data/
+   ✓ Format: CSV, TXT
+   ✓ Type: Time-series datasets
+
+2. Kaggle Time Series
+   https://www.kaggle.com/search?q=time+series&type=datasets
+   ✓ Format: CSV
+   ✓ Type: Various time-series
+
+3. NOAA Climate Data
+   https://www.ncei.noaa.gov/cdo-web/
+   ✓ Format: CSV
+   ✓ Type: Weather, climate data
+
+4. OpenWeatherMap Historical
+   https://openweathermap.org/api
+   ✓ Format: JSON
+   ✓ Type: Weather data
+
+5. Yahoo Finance Data
+   https://finance.yahoo.com/
+   ✓ Format: CSV
+   ✓ Type: Stock market data
+
+6. UCI Machine Learning - Time Series
+   http://archive.ics.uci.edu/ml/datasets.php?format=&task=&att=&area=time&numAtt=&numIns=&type=&sort=nameUp&view=table
+   ✓ Format: Various
+   ✓ Type: Curated time-series
+
+
+SOURCE CODE REPOSITORIES:
+================================================================================
+
+1. GitHub - https://github.com/
+   ✓ Type: All programming languages
+   ✓ License: Various (MIT, Apache, GPL, etc.)
+   ✓ Filter: By topic, language
+   
+   Commands to download:
+   git clone <repo_url>
+   # Or download ZIP from repo
+
+2. GitLab - https://gitlab.com/
+   ✓ Type: All languages
+   ✓ License: Various
+
+3. Awesome Lists - https://awesome-re.vercel.app/
+   ✓ Type: Curated code collections by topic
+   ✓ Languages: All
+   
+   Examples:
+   - Awesome Python: https://awesome-python.com/
+   - Awesome JavaScript: https://github.com/sorrycc/awesome-javascript
+   - Awesome React: https://github.com/enaqx/awesome-react
+
+4. SourceForge - https://sourceforge.net/
+   ✓ Type: Open source projects
+   ✓ License: Various
+
+5. Apache Software Foundation - https://projects.apache.org/
+   ✓ Type: Enterprise-grade projects
+
+6. Mozilla Projects - https://github.com/mozilla
+   ✓ Type: Web standards, tools
+
+7. Google Open Source - https://opensource.google/
+   ✓ Type: Google-maintained projects
+
+8. Meta Open Source - https://opensource.fb.com/
+   ✓ Type: Facebook/Meta projects
+
+
+API SPECIFICATIONS:
+================================================================================
+
+1. OpenAPI Spec Database - https://apis.guru/
+   ✓ Format: OpenAPI 3.0
+   ✓ Type: 2000+ public APIs
+
+2. SwaggerHub - https://app.swaggerhub.com/
+   ✓ Format: OpenAPI, AsyncAPI
+   ✓ Type: API definitions
+
+3. GraphQL APIs - https://graphql-apis.dev/
+   ✓ Format: GraphQL SDL
+   ✓ Type: 1000+ GraphQL APIs
+
+4. GitHub REST API - https://docs.github.com/en/rest
+   ✓ Format: OpenAPI
+   ✓ Type: GitHub API spec
+
+5. Stripe API - https://stripe.com/docs/api
+   ✓ Format: OpenAPI
+   ✓ Type: Payment API
+
+
+NOTEBOOK & RESEARCH CODE:
+================================================================================
+
+1. Jupyter Notebook Share - https://nbviewer.jupyter.org/
+   ✓ Format: Jupyter .ipynb
+   ✓ Type: Analysis, tutorials
+
+2. Kaggle Notebooks - https://www.kaggle.com/code
+   ✓ Format: Jupyter
+   ✓ Type: ML notebooks
+
+3. GitHub Gists - https://gist.github.com/
+   ✓ Format: Code snippets
+   ✓ Type: Quick examples
+
+4. Observable - https://observablehq.com/
+   ✓ Format: JavaScript notebooks
+   ✓ Type: Data visualization
+
+5. Google Colab Notebooks
+   https://colab.research.google.com/
+   ✓ Format: Jupyter
+   ✓ Type: ML/AI examples
+
+
+DOCUMENT & PDF REPOSITORIES:
+================================================================================
+
+1. arXiv - https://arxiv.org/
+   ✓ Format: PDF
+   ✓ Type: Academic preprints
+
+2. ResearchGate - https://www.researchgate.net/
+   ✓ Format: PDF
+   ✓ Type: Academic papers
+
+3. Internet Archive - https://archive.org/
+   ✓ Format: PDF, HTML
+   ✓ Type: Historical documents, books
+
+4. Project Gutenberg - https://www.gutenberg.org/
+   ✓ Format: EPUB, HTML, TXT
+   ✓ Type: Public domain books
+
+5. LibreTexts - https://libretexts.org/
+   ✓ Format: HTML, PDF
+   ✓ Type: Open educational textbooks
+
+
+HOW TO DOWNLOAD & IMPORT:
+================================================================================
+
+For 3D Models (GLTF/OBJ):
+  1. Download .gltf, .obj, .fbx files
+  2. Create schema for "3D Model" asset type
+  3. Use populate_database.py to add records
+  4. Upload files via frontend or import tool
+
+For Datasets (CSV/JSON):
+  1. Download CSV or JSON file
+  2. Create schema matching your data structure
+  3. Use populate_database.py with the CSV/JSON
+  4. Data automatically validates against schema
+
+For Code:
+  1. Clone repository: git clone <url>
+  2. Create "Source Code" asset type
+  3. Upload code files as records
+  4. Store metadata about the code
+
+For API Specs:
+  1. Download OpenAPI/GraphQL definitions
+  2. Create "API Specification" asset type
+  3. Store spec as JSON/YAML in records
+
+
+RECOMMENDED WORKFLOW:
+================================================================================
+
+1. Start:
+   python3 populate_asset_types.py
+
+2. Browse online for assets you want:
+   - Sketchfab for 3D models
+   - Kaggle for datasets
+   - GitHub for code
+
+3. Download samples (free always available):
+   - Download 1-2 3D models
+   - Download 2-3 CSV datasets
+   - Clone 1 GitHub repo
+
+4. Create schemas for each type:
+   - 3D Model schema (with format, size fields)
+   - Dataset schema (with row_count, columns fields)
+   - Code schema (with language, lines_of_code fields)
+
+5. Populate database:
+   python3 populate_database.py
+
+6. View results in frontend:
+   - Check Schemas page
+   - Check Data page
+   - Filter by asset type
+
+
+SAMPLE URLS TO START:
+================================================================================
+
+3D Models to Download:
+  https://sketchfab.com/search?q=low+poly+character&type=models&free=1
+  https://polyhaven.com/models (search for "Chair")
+  https://quaternius.com/ (pick any model)
+
+Datasets to Download:
+  https://www.kaggle.com/datasets/tedlim/titanic
+  https://www.kaggle.com/datasets/uciml/iris
+  https://github.com/fivethirtyeight/data (pick a csv)
+
+Code to Explore:
+  https://github.com/awesome-lists/awesome-readme
+  https://github.com/tensorflow/tensorflow
+  https://github.com/facebook/react
+
+
+TIPS:
+================================================================================
+
+✅ Always check licenses before using
+✅ Download multiple formats to test compatibility
+✅ Start small: 1-2 files of each type
+✅ Use free/open sources first
+✅ Test import with sample data
+✅ Create diverse schemas to show flexibility
+✅ Use different file formats (JSON, CSV, OBJ, etc.)
+✅ Mix professional and sample data
+
+
+NEXT STEPS:
+================================================================================
+
+1. python3 populate_asset_types.py
+2. Download 3-5 3D models from Sketchfab
+3. Download 3-5 datasets from Kaggle or GitHub
+4. Download/clone 1-2 source code repositories
+5. Create schemas for each asset type
+6. Populate database with sample data
+7. View in frontend
+
+Ready to explore!
+

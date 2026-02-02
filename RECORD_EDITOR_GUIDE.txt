@@ -1,0 +1,327 @@
+RECORD EDITOR - Edit Modes Guide
+==================================
+
+The record editor now supports 3 different editing modes:
+
+
+1. FORM MODE (Default)
+======================
+
+✓ Best for: Single record editing with field validation
+✓ Shows: Individual text fields for each schema field
+✓ Features:
+  - One field per text input
+  - Field names as labels
+  - Shows field descriptions if available
+  - Validates required fields
+  - Shows auto-generated fields (grayed out)
+  - Shows additional fields not in schema
+
+How to use:
+1. Click Edit icon on any record
+2. FORM tab is selected by default
+3. Fill in fields with new values
+4. Click "Update Record"
+
+Example:
+  device_id: sensor_001
+  timestamp: 2025-12-02T10:30:00Z
+  temperature: 22.5
+  humidity: 45.0
+
+
+2. JSON MODE
+============
+
+✓ Best for: Bulk editing and complex data structures
+✓ Shows: Complete JSON representation of record
+✓ Features:
+  - Edit as raw JSON
+  - Supports nested objects and arrays
+  - Prettier formatting with 2-space indents
+  - Full data visibility
+  - Good for copy/paste operations
+
+How to use:
+1. Click Edit icon on any record
+2. Click JSON tab
+3. Edit the JSON text directly
+4. Must be valid JSON to submit
+5. Click "Update Record"
+
+Example JSON:
+{
+  "device_id": "sensor_001",
+  "timestamp": "2025-12-02T10:30:00Z",
+  "temperature": 22.5,
+  "humidity": 45.0,
+  "air_quality_index": 35,
+  "battery_level": 89
+}
+
+Valid JSON Rules:
+- Use double quotes for strings
+- Strings must be quoted
+- Numbers don't need quotes
+- Booleans: true/false (lowercase)
+- Arrays: [1, 2, 3]
+- Objects: {"key": "value"}
+- No trailing commas
+
+
+3. CSV MODE
+===========
+
+✓ Best for: Spreadsheet-like editing
+✓ Shows: CSV format (headers on first line, values on second)
+✓ Features:
+  - Headers in first row
+  - Values in second row
+  - Comma-separated format
+  - Handles quoted values with commas
+  - Auto-converts numbers
+  - Supports special characters
+
+How to use:
+1. Click Edit icon on any record
+2. Click CSV tab
+3. Edit fields as comma-separated values
+4. First line: field names
+5. Second line: values
+6. Click "Update Record"
+
+Example CSV:
+device_id,timestamp,temperature,humidity,air_quality_index,battery_level
+sensor_001,2025-12-02T10:30:00Z,22.5,45.0,35,89
+
+CSV Rules:
+- First row: field names
+- Second row: field values
+- Separate with commas
+- Use quotes for values with commas: "value, with comma"
+- Numbers auto-detected
+- Special chars: use quotes and escape
+
+
+SWITCHING BETWEEN MODES
+=======================
+
+The editor syncs data between modes automatically:
+
+1. Load Record → All modes show same data
+2. Edit in FORM → JSON/CSV update when you switch
+3. Edit in JSON → FORM shows parsed fields
+4. Edit in CSV → FORM shows parsed fields
+
+Note: Data is only saved when you click "Update Record"
+
+
+VALIDATION & ERROR HANDLING
+============================
+
+Form Mode:
+✓ Required fields marked with asterisk
+✓ Shows helper text for field descriptions
+✓ Prevents invalid input (numbers/dates)
+✓ Validates on form blur
+
+JSON Mode:
+✓ Must be valid JSON syntax
+✓ Parser error if invalid JSON
+✓ Shows helpful error messages
+
+CSV Mode:
+✓ Must have headers in first row
+✓ Must have values in second row
+✓ Handles quoted values
+✓ Auto-converts numbers
+
+
+SCHEMA VALIDATION
+=================
+
+When you update a record:
+
+✓ New Fields Detected
+  If CSV/JSON adds fields not in schema:
+  - Shows warning dialog
+  - Lists new fields as chips
+  - Options:
+    1. Add to Schema - adds fields to current schema
+    2. New Schema - creates new schema version
+    3. Keep Current - ignores new fields
+
+
+SPECIAL FIELD TYPES
+====================
+
+Form Mode handles:
+- text → text input
+- integer → number input
+- float → number input
+- date → date picker (if available)
+- datetime → datetime input (if available)
+- boolean → checkbox (if available)
+- array → array input
+- object → JSON input
+
+JSON Mode:
+- All types supported as native JSON
+
+CSV Mode:
+- All types converted to CSV strings
+- Numbers auto-detected on parse
+- Strings quoted if needed
+
+
+TIPS & TRICKS
+=============
+
+1. Copy Data Between Records
+   - Edit Record A in JSON mode
+   - Copy the entire JSON object
+   - Edit Record B
+   - Paste JSON object
+   - Click Update
+
+2. Bulk Edit Template
+   - Export multiple records to CSV
+   - Edit in spreadsheet app
+   - Copy back to CSV mode
+   - Update record
+
+3. Validate JSON
+   - Use JSON validator website
+   - Check syntax before submitting
+   - Look for missing quotes/commas
+
+4. Complex Objects
+   - Use JSON mode for nested data
+   - Arrays: [1, 2, 3]
+   - Objects: {"nested": {"value": 123}}
+
+5. Preserve Data Types
+   - JSON keeps types (string/number)
+   - CSV converts to string, then parses
+   - Form mode shows as entered
+
+
+TROUBLESHOOTING
+===============
+
+Q: JSON mode shows empty {}
+A: Record may be loading, wait a moment
+   Or check if currentData was properly passed
+
+Q: CSV mode shows only headers
+A: Record data isn't loading, refresh page
+
+Q: Can't edit auto-generated fields
+A: Fields marked "Auto-generated" are read-only
+   They update on save automatically
+
+Q: JSON validation fails
+A: Check for:
+   - Missing quotes on strings
+   - Trailing commas
+   - Unescaped special characters
+   - Missing closing brackets
+
+Q: Numbers showing as strings
+A: In CSV mode, numbers are auto-detected
+   In JSON, ensure no quotes around numbers
+
+Q: Special characters not working
+A: Use quotes and escape: "value with \" quote"
+
+
+KEYBOARD SHORTCUTS
+==================
+
+In text fields:
+- Tab: Next field
+- Shift+Tab: Previous field
+- Ctrl+A: Select all
+- Ctrl+C: Copy
+- Ctrl+V: Paste
+- Ctrl+Z: Undo (browser dependent)
+
+
+EXPORT & IMPORT
+===============
+
+To move data between records:
+
+1. JSON Mode
+   - Copy entire JSON block
+   - Paste into another record's JSON mode
+   - Click Update
+
+2. CSV Mode
+   - Copy CSV lines
+   - Paste into spreadsheet
+   - Edit there
+   - Copy back
+
+3. Form Mode
+   - Screenshot values
+   - Manually enter in other record
+   - Click Update
+
+
+BEST PRACTICES
+==============
+
+1. Use FORM mode for:
+   - Simple text/number updates
+   - Quick field changes
+   - Validation help
+   - Schema-conforming edits
+
+2. Use JSON mode for:
+   - Complex nested data
+   - Copy/paste between records
+   - Bulk operations
+   - Data migration
+
+3. Use CSV mode for:
+   - Spreadsheet-like editing
+   - Multiple record updates
+   - Export/import from Excel
+   - Simple flat data
+
+
+PERFORMANCE NOTES
+=================
+
+✓ Form mode: Fastest for small records
+✓ JSON mode: Good for all record sizes
+✓ CSV mode: Best for large flat records
+✓ Switching modes: Instant (client-side)
+✓ Saving: Only when "Update Record" clicked
+
+
+VERSION HISTORY
+===============
+
+Record ID: Unique identifier
+Schema ID: Defines structure
+Created By: User who created
+Created At: Timestamp
+Updated fields show in FORM as auto-generated
+
+All updates logged in backend.
+
+
+NEXT STEPS
+==========
+
+1. Try editing a record
+2. Switch between modes
+3. Observe data changes
+4. Test JSON validation
+5. Test CSV parsing
+6. Create new records
+7. Verify updates saved
+
+The editor is now fully functional with all 3 modes!

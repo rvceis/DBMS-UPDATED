@@ -27,7 +27,7 @@ import {
   IconButton,
   Stack,
 } from '@mui/material';
-import { Edit2, Trash2, Plus, Wand2 } from 'lucide-react';
+import { Edit2, Trash2, Plus, Wand2, Download } from 'lucide-react';
 import { useSchemaStore } from '@/stores/schemaStore';
 import type { SchemaField } from '@/stores/schemaStore';
 import { useAssetTypesStore } from '@/stores/assetTypesStore';
@@ -140,7 +140,93 @@ export const Schemas = () => {
       await deleteSchema(schemaId);
       toast.success(`Schema "${schemaName}" and ${recordCount} related records deleted`);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to delete schema');
+      // Handle different error types
+      if (error.response?.status === 403) {
+        const reason = error.response?.data?.reason;
+        if (reason === 'unauthorized') {
+          toast.error(
+            'You can only delete schemas you created.\n\n' +
+            'Only the schema creator or an administrator can delete this schema.'
+          );
+        } else {
+          toast.error(
+            'Permission denied.\n\n' +
+            'Only administrators and schema creators can delete schemas.'
+          );
+        }
+      } else {
+        toast.error(error.message || 'Failed to delete schema');
+      }
+    }
+  };
+
+  const handleExportSchema = async (schemaId: number, schemaName: string, format: 'json' | 'sql') => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `http://localhost:5000/schemas/${schemaId}/export/download/${format}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${schemaName.replace(/\s+/g, '_')}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success(`Schema exported as ${format.toUpperCase()}`);
+    } catch (error: any) {
+      toast.error(`Failed to export schema as ${format.toUpperCase()}`);
+    }
+  };
+
+  const handleExportAllSchemas = async (format: 'json' | 'sql') => {
+    try {
+      const token = localStorage.getItem('token');
+      const endpoint = format === 'json' 
+        ? 'http://localhost:5000/schemas/export/json'
+        : 'http://localhost:5000/schemas/export/sql';
+      
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+      
+      const data = await response.json();
+      const content = format === 'json' 
+        ? JSON.stringify(data, null, 2)
+        : data.combined_sql;
+      
+      const blob = new Blob([content], { type: format === 'json' ? 'application/json' : 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `all_schemas_${new Date().toISOString().split('T')[0]}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success(`All schemas exported as ${format.toUpperCase()}`);
+    } catch (error: any) {
+      toast.error(`Failed to export schemas as ${format.toUpperCase()}`);
     }
   };
 
@@ -153,6 +239,24 @@ export const Schemas = () => {
           Schemas
         </Typography>
         <Stack direction="row" spacing={2}>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<Download size={18} />}
+            onClick={() => handleExportAllSchemas('json')}
+            title="Export all schemas as JSON"
+          >
+            Export JSON
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<Download size={18} />}
+            onClick={() => handleExportAllSchemas('sql')}
+            title="Export all schemas as SQL"
+          >
+            Export SQL
+          </Button>
           <Button
             variant="outlined"
             startIcon={<Wand2 size={20} />}
@@ -196,10 +300,17 @@ export const Schemas = () => {
                       '&:hover': { backgroundColor: 'action.hover' },
                     }}
                   >
-                    <Typography sx={{ fontWeight: 600 }}>{schema.name}</Typography>
-                    <Stack direction="row" spacing={1}>
-                      <Chip label={`v${schema.version}`} size="small" variant="outlined" sx={{ mt: 1 }} />
-                    </Stack>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography sx={{ fontWeight: 600 }}>{schema.name}</Typography>
+                        <Typography variant="caption" color="textSecondary" sx={{ mt: 0.5, display: 'block' }}>
+                          by {schema.created_by_name || 'Unknown'}
+                        </Typography>
+                      </Box>
+                      <Stack direction="row" spacing={1}>
+                        <Chip label={`v${schema.version}`} size="small" variant="outlined" />
+                      </Stack>
+                    </Box>
                   </Box>
                 ))}
               </Box>
@@ -238,6 +349,24 @@ export const Schemas = () => {
                       schemaId={selectedSchema.id} 
                       schemaName={selectedSchema.name}
                     />
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<Download size={16} />}
+                      onClick={() => handleExportSchema(selectedSchema.id, selectedSchema.name, 'json')}
+                      title="Export schema as JSON"
+                    >
+                      JSON
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<Download size={16} />}
+                      onClick={() => handleExportSchema(selectedSchema.id, selectedSchema.name, 'sql')}
+                      title="Export schema as SQL"
+                    >
+                      SQL
+                    </Button>
                     <Button
                       size="small"
                       startIcon={<Plus size={16} />}

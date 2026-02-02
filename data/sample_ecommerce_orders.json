@@ -1,0 +1,110 @@
+[
+  {
+    "order_id": "ORD-001",
+    "customer_name": "Alice Johnson",
+    "email": "alice.johnson@email.com",
+    "phone": "+1-555-0101",
+    "order_date": "2026-01-15",
+    "total_amount": 249.99,
+    "currency": "USD",
+    "items_count": 3,
+    "status": "delivered",
+    "shipping_address": "123 Main St, New York, NY 10001",
+    "payment_method": "credit_card",
+    "notes": "Express shipping",
+    "tags": ["urgent", "vip"],
+    "metadata": {
+      "source": "website",
+      "device": "mobile",
+      "discount_applied": true,
+      "loyalty_points": 250
+    }
+  },
+  {
+    "order_id": "ORD-002",
+    "customer_name": "Bob Smith",
+    "email": "bob.smith@email.com",
+    "phone": "+1-555-0102",
+    "order_date": "2026-01-16",
+    "total_amount": 89.50,
+    "currency": "USD",
+    "items_count": 1,
+    "status": "processing",
+    "shipping_address": "456 Oak Ave, Los Angeles, CA 90001",
+    "payment_method": "paypal",
+    "notes": "Standard shipping",
+    "tags": ["regular"],
+    "metadata": {
+      "source": "mobile_app",
+      "device": "android",
+      "discount_applied": false,
+      "loyalty_points": 90
+    }
+  },
+  {
+    "order_id": "ORD-003",
+    "customer_name": "Carol White",
+    "email": "carol.white@email.com",
+    "phone": "+1-555-0103",
+    "order_date": "2026-01-17",
+    "total_amount": 1250.75,
+    "currency": "USD",
+    "items_count": 12,
+    "status": "pending",
+    "shipping_address": "789 Pine Rd, Chicago, IL 60601",
+    "payment_method": "bank_transfer",
+    "notes": "Bulk order - B2B customer",
+    "tags": ["wholesale", "b2b"],
+    "metadata": {
+      "source": "sales_rep",
+      "device": "desktop",
+      "discount_applied": true,
+      "loyalty_points": 1251,
+      "company": "Tech Corp Ltd"
+    }
+  },
+  {
+    "order_id": "ORD-004",
+    "customer_name": "David Brown",
+    "email": "david.brown@email.com",
+    "phone": "+1-555-0104",
+    "order_date": "2026-01-18",
+    "total_amount": 45.25,
+    "currency": "USD",
+    "items_count": 2,
+    "status": "cancelled",
+    "shipping_address": null,
+    "payment_method": "credit_card",
+    "notes": "Customer requested cancellation",
+    "tags": ["cancelled"],
+    "metadata": {
+      "source": "website",
+      "device": "tablet",
+      "discount_applied": false,
+      "loyalty_points": 0,
+      "cancellation_reason": "out_of_stock"
+    }
+  },
+  {
+    "order_id": "ORD-005",
+    "customer_name": "Eva Martinez",
+    "email": "eva.martinez@email.com",
+    "phone": "+1-555-0105",
+    "order_date": "2026-01-19",
+    "total_amount": 567.89,
+    "currency": "EUR",
+    "items_count": 7,
+    "status": "shipped",
+    "shipping_address": "321 Elm St, Boston, MA 02101",
+    "payment_method": "credit_card",
+    "notes": "International shipping",
+    "tags": ["international", "high_value"],
+    "metadata": {
+      "source": "website",
+      "device": "desktop",
+      "discount_applied": true,
+      "loyalty_points": 568,
+      "customs_cleared": true
+    }
+  }
+]

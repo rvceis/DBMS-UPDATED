@@ -1,0 +1,6 @@
+patient_id,first_name,last_name,date_of_birth,gender,blood_type,contact_number,email,address,insurance_id,admission_date,discharge_date,diagnosis,treatment,doctor_assigned,room_number,bed_number,severity,age_group,payment_status
+P001,John,Anderson,1965-03-15,Male,O+,555-0201,john.anderson@email.com,100 Medical Plaza Dr,INS-2025-001,2026-01-10,2026-01-15,Hypertension,Medication & Lifestyle,Dr. Smith,201,A,moderate,60+,paid
+P002,Mary,Johnson,1978-07-22,Female,A-,555-0202,mary.johnson@email.com,200 Health Ave,INS-2025-002,2026-01-12,null,Diabetes Type 2,Insulin Therapy,Dr. Patel,202,B,moderate,40-50,pending
+P003,Robert,Williams,1992-11-08,Male,B+,555-0203,robert.williams@email.com,300 Wellness St,INS-2025-003,2026-01-14,2026-01-19,Pneumonia,Antibiotics,Dr. Lee,203,C,severe,30-40,paid
+P004,Lisa,Brown,1950-05-30,Female,AB+,555-0204,lisa.brown@email.com,400 Care Blvd,INS-2025-004,2026-01-16,null,Arthritis,Physical Therapy,Dr. Martinez,204,D,mild,70+,paid
+P005,Michael,Davis,1985-09-12,Male,O-,555-0205,michael.davis@email.com,500 Recovery Rd,INS-2025-005,2026-01-18,2026-01-22,Fracture,Orthopedic Surgery,Dr. Wilson,205,A,moderate,35-45,pending

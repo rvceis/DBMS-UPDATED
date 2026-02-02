@@ -1,0 +1,79 @@
+[
+  {
+    "building_id": "BLD-001",
+    "building_name": "Corporate Tower A",
+    "address": "123 Business Park Drive, San Francisco, CA 94105",
+    "total_floors": 45,
+    "year_built": 2010,
+    "total_area_sqm": 185000,
+    "occupancy_percent": 92,
+    "manager_name": "Thomas Chen",
+    "manager_email": "thomas.chen@realstate.com",
+    "phone": "555-0301",
+    "facilities": ["parking", "cafeteria", "gym", "security_24h", "wifi"],
+    "parking_spaces": 850,
+    "accessibility_features": ["wheelchair_ramps", "elevators", "accessible_bathrooms"],
+    "energy_rating": "A",
+    "last_inspection": "2025-11-15",
+    "maintenance_status": "good",
+    "primary_tenants": ["TechCorp Inc", "StartupX Ltd"],
+    "rental_price_per_sqm_annual": 150,
+    "available_floors": 3,
+    "emergency_contacts": {
+      "security": "555-0401",
+      "maintenance": "555-0402",
+      "management": "555-0403"
+    }
+  },
+  {
+    "building_id": "BLD-002",
+    "building_name": "Green Plaza B",
+    "address": "456 Eco Avenue, Portland, OR 97214",
+    "total_floors": 12,
+    "year_built": 2018,
+    "total_area_sqm": 42000,
+    "occupancy_percent": 78,
+    "manager_name": "Sarah Anderson",
+    "manager_email": "sarah.anderson@realstate.com",
+    "phone": "555-0304",
+    "facilities": ["parking", "green_space", "conference_rooms", "security"],
+    "parking_spaces": 200,
+    "accessibility_features": ["wheelchair_ramps", "elevators"],
+    "energy_rating": "AAA",
+    "last_inspection": "2025-12-01",
+    "maintenance_status": "excellent",
+    "primary_tenants": ["EcoTech Solutions"],
+    "rental_price_per_sqm_annual": 120,
+    "available_floors": 2,
+    "emergency_contacts": {
+      "security": "555-0404",
+      "maintenance": "555-0405"
+    }
+  },
+  {
+    "building_id": "BLD-003",
+    "building_name": "Mixed Use Center C",
+    "address": "789 Commerce Street, Chicago, IL 60611",
+    "total_floors": 28,
+    "year_built": 2005,
+    "total_area_sqm": 98000,
+    "occupancy_percent": 85,
+    "manager_name": "Michael Johnson",
+    "manager_email": "michael.johnson@realstate.com",
+    "phone": "555-0305",
+    "facilities": ["parking", "retail", "restaurants", "fitness_center", "security"],
+    "parking_spaces": 1200,
+    "accessibility_features": ["wheelchair_ramps", "elevators", "accessible_bathrooms"],
+    "energy_rating": "B",
+    "last_inspection": "2025-10-20",
+    "maintenance_status": "fair",
+    "primary_tenants": ["Retail Chains", "Office Suites", "Restaurants"],
+    "rental_price_per_sqm_annual": 135,
+    "available_floors": 5,
+    "emergency_contacts": {
+      "security": "555-0406",
+      "maintenance": "555-0407",
+      "management": "555-0408"
+    }
+  }
+]

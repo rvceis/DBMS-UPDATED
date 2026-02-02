@@ -306,7 +306,7 @@ export default function DataPage() {
 
     setUpdating(true);
     try {
-      const response = await fetch(`/api/metadata/${selectedRecord.id}`, {
+      const response = await fetch(`http://localhost:5000/metadata/${selectedRecord.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

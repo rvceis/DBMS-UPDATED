@@ -61,19 +61,119 @@ export default function AdvancedRecordEditor({
   const [schemaAction, setSchemaAction] = useState<SchemaAction>('validate');
   const [newSchemaName, setNewSchemaName] = useState('');
 
+  // Helper functions
+  const objectToCsv = (obj: Record<string, any>) => {
+    if (!obj || Object.keys(obj).length === 0) return '';
+    
+    const keys = Object.keys(obj);
+    const headerRow = keys.join(',');
+    
+    const valueRow = keys.map(k => {
+      const value = obj[k];
+      // Handle various data types
+      if (value === null || value === undefined) return '';
+      if (typeof value === 'string' && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+        // Quote and escape strings with special characters
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return String(value);
+    }).join(',');
+    
+    return `${headerRow}\n${valueRow}`;
+  };
+
+  const csvToObject = (csv: string) => {
+    if (!csv || csv.trim().length === 0) return {};
+    
+    const lines = csv.trim().split('\n');
+    if (lines.length < 2) return {};
+    
+    const parseCSVLine = (line: string): string[] => {
+      const result = [];
+      let current = '';
+      let insideQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+        
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            current += '"';
+            i++;
+          } else {
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      result.push(current.trim());
+      return result;
+    };
+    
+    const keys = parseCSVLine(lines[0]);
+    const values = parseCSVLine(lines[1]);
+    const obj: Record<string, any> = {};
+    
+    keys.forEach((key, i) => {
+      const value = values[i]?.trim() || '';
+      // Try to convert to number if possible
+      if (!isNaN(Number(value)) && value !== '') {
+        obj[key] = Number(value);
+      } else {
+        obj[key] = value;
+      }
+    });
+    
+    return obj;
+  };
+
   useEffect(() => {
     if (open) {
       fetchSchemaFields();
+      fetchRecordValues();
+    }
+  }, [open, schemaId, recordId, currentData]);
+
+  const fetchRecordValues = async () => {
+    try {
+      // First try to get record values from props
+      if (currentData && Object.keys(currentData).length > 0) {
+        setFormData({ ...currentData });
+        setJsonData(JSON.stringify(currentData, null, 2));
+        setCsvData(objectToCsv(currentData));
+      } else {
+        // If currentData is empty, fetch from API
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`http://localhost:5000/metadata/${recordId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        const recordData = response.data.values || response.data.data || {};
+        setFormData(recordData);
+        setJsonData(JSON.stringify(recordData, null, 2));
+        setCsvData(objectToCsv(recordData));
+      }
+    } catch (error) {
+      // Fallback to empty data if fetch fails
+      console.log('Could not fetch record values, using currentData');
       setFormData({ ...currentData });
       setJsonData(JSON.stringify(currentData, null, 2));
       setCsvData(objectToCsv(currentData));
     }
-  }, [open, schemaId, currentData]);
+  };
 
   const fetchSchemaFields = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`/api/schemas/detail/${schemaId}`, {
+      const response = await axios.get(`http://localhost:5000/schemas/${schemaId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,25 +182,6 @@ export default function AdvancedRecordEditor({
     } catch (error) {
       toast.error('Failed to fetch schema');
     }
-  };
-
-  const objectToCsv = (obj: Record<string, any>) => {
-    const keys = Object.keys(obj);
-    const values = keys.map(k => obj[k]);
-    return `${keys.join(',')}\n${values.join(',')}`;
-  };
-
-  const csvToObject = (csv: string) => {
-    const lines = csv.trim().split('\n');
-    if (lines.length < 2) return {};
-    
-    const keys = lines[0].split(',');
-    const values = lines[1].split(',');
-    const obj: Record<string, any> = {};
-    keys.forEach((key, i) => {
-      obj[key.trim()] = values[i]?.trim() || '';
-    });
-    return obj;
   };
 
   const handleSubmit = async () => {
@@ -297,28 +378,39 @@ export default function AdvancedRecordEditor({
 
         {/* JSON Mode */}
         {mode === 'json' && (
-          <TextField
-            multiline
-            rows={15}
-            value={jsonData}
-            onChange={(e) => setJsonData(e.target.value)}
-            fullWidth
-            placeholder='{"field1": "value1", "field2": "value2"}'
-            sx={{ fontFamily: 'monospace' }}
-          />
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+              Edit as JSON format
+            </Typography>
+            <TextField
+              multiline
+              rows={15}
+              value={jsonData}
+              onChange={(e) => setJsonData(e.target.value)}
+              fullWidth
+              placeholder='{"field1": "value1", "field2": "value2"}'
+              sx={{ fontFamily: 'monospace', fontSize: '12px' }}
+              error={jsonData && jsonData.trim() !== '{}' && jsonData.trim() !== ''}
+            />
+          </Box>
         )}
 
         {/* CSV Mode */}
         {mode === 'csv' && (
-          <TextField
-            multiline
-            rows={10}
-            value={csvData}
-            onChange={(e) => setCsvData(e.target.value)}
-            fullWidth
-            placeholder="field1,field2,field3&#10;value1,value2,value3"
-            sx={{ fontFamily: 'monospace' }}
-          />
+          <Box>
+            <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+              Edit as CSV format (first row: headers, second row: values)
+            </Typography>
+            <TextField
+              multiline
+              rows={10}
+              value={csvData}
+              onChange={(e) => setCsvData(e.target.value)}
+              fullWidth
+              placeholder="field1,field2,field3&#10;value1,value2,value3"
+              sx={{ fontFamily: 'monospace', fontSize: '12px' }}
+            />
+          </Box>
         )}
       </DialogContent>
 

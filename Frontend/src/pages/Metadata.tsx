@@ -459,7 +459,7 @@ export const Metadata = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           Metadata Records
@@ -496,9 +496,9 @@ export const Metadata = () => {
 
       {/* Filters Panel */}
       {showFilters && (
-        <Card sx={{ mb: 3 }}>
+        <Card sx={{ mb: 3, width: '100%' }}>
           <CardContent>
-            <Grid container spacing={2}>
+            <Grid container spacing={2} sx={{ width: '100%' }}>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth size="small">
                   <InputLabel>Asset Type</InputLabel>
@@ -549,24 +549,24 @@ export const Metadata = () => {
       )}
 
       {/* Records Table */}
-      <Card>
-        <CardContent>
+      <Card sx={{ width: '100%' }}>
+        <CardContent sx={{ width: '100%', p: 2 }}>
           {loading ? (
             <LoadingSpinner />
           ) : filteredRecords.length === 0 ? (
             <EmptyState title="No records found" message="Create your first metadata record to get started" />
           ) : (
-            <TableContainer>
-              <Table>
+            <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
+              <Table sx={{ width: '100%', tableLayout: 'auto' }} stickyHeader>
                 <TableHead>
                   <TableRow sx={{ backgroundColor: 'action.hover' }}>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Schema</TableCell>
-                    <TableCell>Asset Type</TableCell>
-                    <TableCell>Tag</TableCell>
-                    <TableCell>Created By</TableCell>
-                    <TableCell>Created At</TableCell>
-                    <TableCell align="right">Actions</TableCell>
+                    <TableCell sx={{ width: '12%' }}>Name</TableCell>
+                    <TableCell sx={{ width: '15%' }}>Schema</TableCell>
+                    <TableCell sx={{ width: '12%' }}>Asset Type</TableCell>
+                    <TableCell sx={{ width: '10%' }}>Tag</TableCell>
+                    <TableCell sx={{ width: '15%' }}>Created By</TableCell>
+                    <TableCell sx={{ width: '12%' }}>Created At</TableCell>
+                    <TableCell align="right" sx={{ width: '14%' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

@@ -52,8 +52,16 @@ export const ReportTemplates = () => {
       await deleteTemplate(deleteDialog.id);
       toast.success('Template deleted');
       setDeleteDialog({ open: false });
-    } catch (error) {
-      toast.error('Failed to delete template');
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        toast.error(
+          'Permission denied.\n\n' +
+          'You can only delete report templates you created.\n' +
+          'Only the creator or an administrator can delete this template.'
+        );
+      } else {
+        toast.error('Failed to delete template');
+      }
     }
   };
 

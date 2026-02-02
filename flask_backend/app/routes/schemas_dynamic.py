@@ -625,3 +625,347 @@ def get_schema_versions(schema_id):
         })
     
     return jsonify(result)
+
+
+@schemas_bp.route("/export/json", methods=["GET"])
+@jwt_required()
+def export_schemas_json():
+    """Export all schemas as JSON - Available to all authenticated roles"""
+    from ..models import User, SchemaField
+    import json
+    
+    schemas = SchemaModel.query.order_by(SchemaModel.version.desc()).all()
+    result = []
+    
+    for s in schemas:
+        user_name = None
+        if s.created_by:
+            user = User.query.get(s.created_by)
+            user_name = user.username if user else f"User #{s.created_by}"
+        
+        # Get all fields for this schema
+        fields = []
+        for field in s.fields:
+            if not field.is_deleted:
+                fields.append({
+                    "field_name": field.field_name,
+                    "field_type": field.field_type,
+                    "is_required": field.is_required,
+                    "default_value": field.default_value,
+                    "constraints": field.constraints if field.constraints else {},
+                    "description": field.description,
+                })
+        
+        result.append({
+            "id": s.id,
+            "version": s.version,
+            "name": s.name,
+            "allow_additional_fields": s.allow_additional_fields,
+            "fields": fields,
+            "created_by": s.created_by,
+            "created_by_name": user_name,
+            "created_at": s.created_at.isoformat() if s.created_at else None,
+        })
+    
+    return jsonify({
+        "export_type": "schemas_json",
+        "export_date": __import__('datetime').datetime.now().isoformat(),
+        "total_schemas": len(result),
+        "schemas": result
+    }), 200
+
+
+@schemas_bp.route("/export/sql", methods=["GET"])
+@jwt_required()
+def export_schemas_sql():
+    """Export all schemas as SQL CREATE TABLE statements - Available to all authenticated roles"""
+    from ..models import User
+    import json
+    
+    schemas = SchemaModel.query.order_by(SchemaModel.id.asc()).all()
+    sql_statements = []
+    
+    for s in schemas:
+        user_name = None
+        if s.created_by:
+            user = User.query.get(s.created_by)
+            user_name = user.username if user else f"User #{s.created_by}"
+        
+        # Get fields from SchemaField model (not schema_json)
+        table_name = (s.name or f'schema_{s.id}').lower().replace(' ', '_').replace('-', '_')
+        
+        # Build CREATE TABLE statement
+        sql_lines = [
+            f"-- Schema: {s.name}",
+            f"-- Schema ID: {s.id}, Version: {s.version}",
+            f"-- Created by: {user_name}",
+            f"CREATE TABLE IF NOT EXISTS {table_name} (",
+            "    id SERIAL PRIMARY KEY,"
+        ]
+        
+        # Get active fields from the schema.fields relationship
+        active_fields = [f for f in s.fields if not f.is_deleted]
+        
+        if active_fields:
+            for i, field in enumerate(active_fields):
+                field_name = field.field_name.lower().replace(' ', '_').replace('-', '_')
+                
+                # Map data types
+                sql_type = map_to_sql_type(field.field_type)
+                
+                # Add constraints
+                sql_constraint = ""
+                if field.is_required:
+                    sql_constraint += " NOT NULL"
+                
+                if field.constraints:
+                    if field.constraints.get('unique'):
+                        sql_constraint += " UNIQUE"
+                
+                comma = "," if i < len(active_fields) - 1 else ""
+                sql_lines.append(f"    {field_name} {sql_type}{sql_constraint}{comma}")
+        
+        sql_lines.append(");")
+        sql_statements.append("\n".join(sql_lines))
+    
+    return jsonify({
+        "export_type": "schemas_sql",
+        "export_date": __import__('datetime').datetime.now().isoformat(),
+        "total_schemas": len(schemas),
+        "database_type": "postgresql",
+        "sql_statements": sql_statements,
+        "combined_sql": "\n\n".join(sql_statements)
+    }), 200
+
+
+@schemas_bp.route("/<int:schema_id>/export/json", methods=["GET"])
+@jwt_required()
+def export_schema_json(schema_id):
+    """Export a single schema as JSON - Available to all authenticated roles"""
+    from ..models import User, SchemaField
+    
+    schema = SchemaModel.query.get(schema_id)
+    if not schema:
+        return jsonify({"error": "schema not found"}), 404
+    
+    user_name = None
+    if schema.created_by:
+        user = User.query.get(schema.created_by)
+        user_name = user.username if user else f"User #{schema.created_by}"
+    
+    # Get all fields for this schema
+    fields = []
+    for field in schema.fields:
+        if not field.is_deleted:
+            fields.append({
+                "field_name": field.field_name,
+                "field_type": field.field_type,
+                "is_required": field.is_required,
+                "default_value": field.default_value,
+                "constraints": field.constraints if field.constraints else {},
+                "description": field.description,
+            })
+    
+    return jsonify({
+        "export_type": "schema_json",
+        "export_date": __import__('datetime').datetime.now().isoformat(),
+        "id": schema.id,
+        "version": schema.version,
+        "name": schema.name,
+        "allow_additional_fields": schema.allow_additional_fields,
+        "fields": fields,
+        "created_by": schema.created_by,
+        "created_by_name": user_name,
+        "created_at": schema.created_at.isoformat() if schema.created_at else None,
+    }), 200
+
+
+@schemas_bp.route("/<int:schema_id>/export/sql", methods=["GET"])
+@jwt_required()
+def export_schema_sql(schema_id):
+    """Export a single schema as SQL CREATE TABLE statement - Available to all authenticated roles"""
+    from ..models import User
+    import json
+    
+    schema = SchemaModel.query.get(schema_id)
+    if not schema:
+        return jsonify({"error": "schema not found"}), 404
+    
+    user_name = None
+    if schema.created_by:
+        user = User.query.get(schema.created_by)
+        user_name = user.username if user else f"User #{schema.created_by}"
+    
+    # Get fields from SchemaField model (not schema_json)
+    table_name = (schema.name or f'schema_{schema.id}').lower().replace(' ', '_').replace('-', '_')
+    
+    # Build CREATE TABLE statement
+    sql_lines = [
+        f"-- Schema: {schema.name}",
+        f"-- Schema ID: {schema.id}, Version: {schema.version}",
+        f"-- Created by: {user_name}",
+        f"-- Exported: {__import__('datetime').datetime.now().isoformat()}",
+        f"CREATE TABLE IF NOT EXISTS {table_name} (",
+        "    id SERIAL PRIMARY KEY,"
+    ]
+    
+    # Get active fields from the schema.fields relationship
+    active_fields = [f for f in schema.fields if not f.is_deleted]
+    
+    if active_fields:
+        for i, field in enumerate(active_fields):
+            field_name = field.field_name.lower().replace(' ', '_').replace('-', '_')
+            
+            # Map data types
+            sql_type = map_to_sql_type(field.field_type)
+            
+            # Add constraints
+            sql_constraint = ""
+            if field.is_required:
+                sql_constraint += " NOT NULL"
+            
+            if field.constraints:
+                if field.constraints.get('unique'):
+                    sql_constraint += " UNIQUE"
+            
+            comma = "," if i < len(active_fields) - 1 else ""
+            sql_lines.append(f"    {field_name} {sql_type}{sql_constraint}{comma}")
+    
+    sql_lines.append(");")
+    sql_statement = "\n".join(sql_lines)
+    
+    return jsonify({
+        "export_type": "schema_sql",
+        "export_date": __import__('datetime').datetime.now().isoformat(),
+        "id": schema.id,
+        "version": schema.version,
+        "name": schema.name,
+        "database_type": "postgresql",
+        "table_name": table_name,
+        "sql_statement": sql_statement,
+        "field_count": len(active_fields),
+        "created_by": schema.created_by,
+        "created_by_name": user_name,
+        "created_at": schema.created_at.isoformat() if schema.created_at else None,
+    }), 200
+       
+
+
+@schemas_bp.route("/<int:schema_id>/export/download/<format>", methods=["GET"])
+@jwt_required()
+def download_schema_export(schema_id, format):
+    """Download schema export in specified format (json, sql) - Available to all authenticated roles"""
+    from flask import send_file
+    from io import BytesIO
+    from ..models import User
+    import json
+    
+    if format not in ["json", "sql"]:
+        return jsonify({"error": "invalid format. Use 'json' or 'sql'"}), 400
+    
+    schema = SchemaModel.query.get(schema_id)
+    if not schema:
+        return jsonify({"error": "schema not found"}), 404
+    
+    user_name = None
+    if schema.created_by:
+        user = User.query.get(schema.created_by)
+        user_name = user.username if user else f"User #{schema.created_by}"
+    
+    schema_name = schema.name or f'schema_{schema.id}'
+    
+    if format == "json":
+        # Export as JSON with all fields
+        fields = []
+        for field in schema.fields:
+            if not field.is_deleted:
+                fields.append({
+                    "field_name": field.field_name,
+                    "field_type": field.field_type,
+                    "is_required": field.is_required,
+                    "default_value": field.default_value,
+                    "constraints": field.constraints if field.constraints else {},
+                    "description": field.description,
+                })
+        
+        export_data = {
+            "schema_id": schema.id,
+            "schema_name": schema_name,
+            "version": schema.version,
+            "allow_additional_fields": schema.allow_additional_fields,
+            "created_by": user_name,
+            "created_at": schema.created_at.isoformat() if schema.created_at else None,
+            "fields": fields
+        }
+        content = json.dumps(export_data, indent=2)
+        mimetype = "application/json"
+        filename = f"{schema_name.replace(' ', '_')}_v{schema.version}.json"
+    
+    else:  # format == "sql"
+        # Export as SQL with all fields
+        table_name = schema_name.lower().replace(' ', '_').replace('-', '_')
+        sql_lines = [
+            f"-- Schema: {schema_name}",
+            f"-- Version: {schema.version}",
+            f"-- Created by: {user_name}",
+            f"-- Exported: {__import__('datetime').datetime.now().isoformat()}",
+            "",
+            f"CREATE TABLE IF NOT EXISTS {table_name} (",
+            "    id SERIAL PRIMARY KEY,"
+        ]
+        
+        # Get active fields from the schema.fields relationship
+        active_fields = [f for f in schema.fields if not f.is_deleted]
+        
+        if active_fields:
+            for i, field in enumerate(active_fields):
+                field_name = field.field_name.lower().replace(' ', '_').replace('-', '_')
+                sql_type = map_to_sql_type(field.field_type)
+                
+                sql_constraint = ""
+                if field.is_required:
+                    sql_constraint += " NOT NULL"
+                
+                if field.constraints:
+                    if field.constraints.get('unique'):
+                        sql_constraint += " UNIQUE"
+                
+                comma = "," if i < len(active_fields) - 1 else ""
+                sql_lines.append(f"    {field_name} {sql_type}{sql_constraint}{comma}")
+        
+        sql_lines.append(");")
+        content = "\n".join(sql_lines)
+        mimetype = "text/plain"
+        filename = f"{schema_name.replace(' ', '_')}_v{schema.version}.sql"
+    
+    # Create file-like object
+    file_obj = BytesIO(content.encode('utf-8'))
+    file_obj.seek(0)
+    
+    return send_file(
+        file_obj,
+        mimetype=mimetype,
+        as_attachment=True,
+        download_name=filename
+    )
+
+
+def map_to_sql_type(field_type):
+    """Map application field types to SQL types"""
+    type_mapping = {
+        'integer': 'INTEGER',
+        'int': 'INTEGER',
+        'float': 'FLOAT',
+        'double': 'DOUBLE PRECISION',
+        'string': 'VARCHAR(255)',
+        'text': 'TEXT',
+        'boolean': 'BOOLEAN',
+        'bool': 'BOOLEAN',
+        'date': 'DATE',
+        'datetime': 'TIMESTAMP',
+        'timestamp': 'TIMESTAMP',
+        'array': 'TEXT[]',
+        'json': 'JSONB',
+        'object': 'JSONB',
+    }
+    return type_mapping.get(field_type.lower(), 'TEXT')

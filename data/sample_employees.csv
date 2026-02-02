@@ -1,0 +1,11 @@
+employee_id,first_name,last_name,email,department,job_title,salary,hire_date,manager_id,location,phone,skill_level,certification,is_active,performance_score,project_count
+E001,John,Doe,john.doe@company.com,Engineering,Senior Developer,125000,2020-03-15,M001,New York,555-0101,expert,AWS,true,9.2,5
+E002,Jane,Smith,jane.smith@company.com,Engineering,DevOps Engineer,95000,2021-06-20,M001,New York,555-0102,advanced,Kubernetes,true,8.7,3
+E003,Mike,Johnson,mike.johnson@company.com,Sales,Sales Manager,98000,2019-01-10,M002,Los Angeles,555-0103,advanced,Salesforce,true,8.9,2
+E004,Sarah,Williams,sarah.williams@company.com,Sales,Account Executive,75000,2022-09-01,M003,Los Angeles,555-0104,intermediate,none,true,7.5,6
+E005,Robert,Brown,robert.brown@company.com,HR,HR Manager,85000,2018-02-14,M004,Chicago,555-0105,advanced,CIPD,true,8.2,1
+E006,Lisa,Davis,lisa.davis@company.com,Engineering,Junior Developer,65000,2023-01-15,M001,New York,555-0106,beginner,GitHub,true,6.8,2
+E007,James,Wilson,james.wilson@company.com,Finance,Finance Analyst,72000,2021-11-20,M005,Chicago,555-0107,intermediate,CFA,false,7.1,3
+E008,Mary,Moore,mary.moore@company.com,Marketing,Marketing Director,110000,2017-05-10,M002,Los Angeles,555-0108,expert,Google Analytics,true,9.0,4
+E009,David,Taylor,david.taylor@company.com,Engineering,QA Engineer,78000,2022-04-01,M001,New York,555-0109,intermediate,ISTQB,true,7.6,5
+E010,Jennifer,Anderson,jennifer.anderson@company.com,Sales,Sales Representative,68000,2023-06-15,M003,Los Angeles,555-0110,beginner,none,true,6.5,7

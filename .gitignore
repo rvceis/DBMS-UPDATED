@@ -9,7 +9,7 @@ __pycache__/
 venv/
 env/
 *.log
-
+flask_backend/instance
 # ---- Node.js / JavaScript ----
 node_modules/
 npm-debug.log*

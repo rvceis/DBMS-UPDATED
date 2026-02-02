@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 import {
   Box,
   Card,
@@ -56,6 +57,7 @@ type ActivityItem = {
 const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'];
 
 export const Analytics = () => {
+  const theme = useTheme();
   const { token, user } = useAuthStore();
   const { schemas, fetchSchemas } = useSchemaStore();
   const { records, fetchRecords } = useDataStore();
@@ -66,6 +68,13 @@ export const Analytics = () => {
   const [topTypes, setTopTypes] = useState<{ name: string; count: number }[]>([]);
   const [recent, setRecent] = useState<ActivityItem[]>([]);
   const [userActivity, setUserActivity] = useState<{ username: string; count: number }[]>([]);
+  const [expandedAssets, setExpandedAssets] = useState<string[]>([]);
+  const [expandedSchemas, setExpandedSchemas] = useState<string[]>([]);
+  const [assetTypeNames, setAssetTypeNames] = useState<Record<number, string>>({});
+  const [nodePositions, setNodePositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [draggingNode, setDraggingNode] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [flowMode, setFlowMode] = useState<'assign' | 'auto'>('assign');
 
   useEffect(() => {
     fetchSchemas();
@@ -114,51 +123,137 @@ export const Analytics = () => {
     }
   }, [token, user?.role]);
 
-  // Simple relationship graph layout: columns for AssetType -> Schema -> Metadata
+  // Relationship graph layout: hierarchical tree with parent-child relationships
   const relationGraph = useMemo(() => {
     // Build unique asset type nodes from schemas and records
     const assetTypes = new Map<number | 'none', { id: string; label: string; col: number }>();
-    const schemaNodes = new Map<number, { id: string; label: string; col: number; asset_type_id?: number }>();
-    const recordNodes = new Map<number, { id: string; label: string; col: number; schema_id?: number }>();
+    const schemaNodes = new Map<number, { id: string; label: string; col: number; asset_type_id?: number; parent?: string }>();
+    const recordNodes = new Map<number, { id: string; label: string; col: number; schema_id?: number; parent?: string }>();
 
     schemas.forEach((s) => {
-      schemaNodes.set(s.id, { id: `S${s.id}`, label: `${s.name} v${s.version}`, col: 1, asset_type_id: s.asset_type_id });
+      schemaNodes.set(s.id, { id: `S${s.id}`, label: `${s.name} v${s.version}`, col: 1, asset_type_id: s.asset_type_id, parent: `A${s.asset_type_id ?? -1}` });
       const k = (s.asset_type_id ?? -1) as number | 'none';
       if (!assetTypes.has(k)) {
-        assetTypes.set(k, { id: `A${k}`, label: s.asset_type_id ? `AssetType #${s.asset_type_id}` : 'Unassigned', col: 0 });
+        const assetTypeId = s.asset_type_id || -1;
+        const assetTypeName = assetTypeNames[assetTypeId] || (s.asset_type_id ? `AssetType #${s.asset_type_id}` : 'Unassigned');
+        assetTypes.set(k, { id: `A${k}`, label: assetTypeName, col: 0 });
       }
     });
     records.slice(0, 30).forEach((r) => {
-      recordNodes.set(r.id, { id: `M${r.id}`, label: r.name || `Record #${r.id}`, col: 2, schema_id: r.schema_id });
+      recordNodes.set(r.id, { id: `M${r.id}`, label: r.name || `Record #${r.id}`, col: 2, schema_id: r.schema_id, parent: `S${r.schema_id}` });
     });
 
-    // layout positions
-    const rowsA = Array.from(assetTypes.values());
-    const rowsS = Array.from(schemaNodes.values());
-    const rowsM = Array.from(recordNodes.values());
-    const colX = [50, 360, 670];
-    const vGap = 50;
-    const nodes = [
-      ...rowsA.map((n, i) => ({ ...n, x: colX[0], y: 40 + i * vGap })),
-      ...rowsS.map((n, i) => ({ ...n, x: colX[1], y: 40 + i * vGap })),
-      ...rowsM.map((n, i) => ({ ...n, x: colX[2], y: 40 + i * vGap })),
-    ];
-
-    const find = (id: string) => nodes.find((n) => n.id === id)!;
+    // Build hierarchical structure
+    const assetTypesArray = Array.from(assetTypes.values());
+    const schemaArray = Array.from(schemaNodes.values());
+    const recordArray = Array.from(recordNodes.values());
+    
+    const nodes: Array<any> = [];
     const links: { from: string; to: string; color: string }[] = [];
-    schemaNodes.forEach((s) => {
-      const atKey = (s.asset_type_id ?? -1) as number | 'none';
-      const a = assetTypes.get(atKey);
-      if (a) links.push({ from: a.id, to: s.id, color: '#94A3B8' });
-    });
-    recordNodes.forEach((m) => {
-      if (m.schema_id && schemaNodes.has(m.schema_id)) links.push({ from: `S${m.schema_id}`, to: m.id, color: '#6366F1' });
+    
+    let currentX = 100;
+    const verticalSpacing = 70;
+    
+    // Position asset types with their children hierarchically
+    assetTypesArray.forEach((at) => {
+      const childSchemas = schemaArray.filter(s => (s.asset_type_id ?? -1) === parseInt(at.id.substring(1)));
+      
+      if (childSchemas.length === 0) {
+        // No children, just position the asset type
+        nodes.push({ ...at, x: currentX, y: 100, children: [] });
+        currentX += 250;
+        return;
+      }
+
+      // Calculate total height needed for this subtree
+      let subtreeHeight = 0;
+      const childHeights: number[] = [];
+      
+      childSchemas.forEach((schema) => {
+        const schemaRecords = recordArray.filter(r => r.schema_id === schema.id && expandedAssets.includes(schema.id));
+        const height = (schemaRecords.length + 1) * verticalSpacing;
+        childHeights.push(height);
+        subtreeHeight += height;
+      });
+      
+      // Position asset type at top
+      const assetTypeY = 50 + subtreeHeight / 2 - 35;
+      nodes.push({ ...at, x: currentX, y: assetTypeY, children: childSchemas.map(s => s.id) });
+      
+      // Position child schemas vertically below asset type
+      let currentY = 100;
+      childSchemas.forEach((s, idx) => {
+        const schemaRecords = recordArray.filter(r => r.schema_id === s.id);
+        nodes.push({ ...s, x: currentX + 200, y: currentY, children: schemaRecords.map(r => r.id) });
+        links.push({ from: at.id, to: s.id, color: '#94A3B8' });
+        
+        // Add a single records node instead of individual records
+        if (schemaRecords.length > 0) {
+          const recordsNodeId = `RECS${s.id}`;
+          const recordLabel = expandedSchemas.includes(s.id) 
+            ? `${schemaRecords.length} Records`
+            : `+${schemaRecords.length}`;
+          
+          nodes.push({
+            id: recordsNodeId,
+            label: recordLabel,
+            col: 2,
+            x: currentX + 400,
+            y: currentY,
+            children: expandedSchemas.includes(s.id) ? schemaRecords.map(r => r.id) : [],
+            isRecordsNode: true,
+            schemaId: s.id
+          });
+          links.push({ from: s.id, to: recordsNodeId, color: '#6366F1' });
+          
+          // Only show individual records if expanded
+          if (expandedSchemas.includes(s.id)) {
+            schemaRecords.forEach((r, rIdx) => {
+              nodes.push({ ...r, x: currentX + 600, y: currentY + rIdx * verticalSpacing, children: [] });
+              links.push({ from: recordsNodeId, to: r.id, color: '#34D399' });
+            });
+          }
+        }
+        
+        currentY += childHeights[idx];
+      });
+      
+      currentX += 600;
     });
 
-    return { nodes, links, width: 760, height: Math.max(nodes.length * 22 + 80, 260) };
-  }, [schemas, records]);
+    const maxX = currentX + 200;
+    const maxY = Math.max(...nodes.map(n => n.y + 40), 800);
+    return { nodes, links, width: Math.max(maxX, 1200), height: Math.max(maxY, 800) };
+  }, [schemas, records, assetTypeNames, expandedAssets, expandedSchemas]);
 
-  const [flowMode, setFlowMode] = useState<'assign' | 'auto'>('assign');
+  const toggleAssetExpand = (id: string) => {
+    setExpandedAssets((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
+
+  // Fetch asset type names
+  useEffect(() => {
+    const fetchAssetTypes = async () => {
+      try {
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await fetch('/api/asset-types', { headers });
+        if (response.ok) {
+          const data = await response.json();
+          const names: Record<number, string> = {};
+          if (Array.isArray(data)) {
+            data.forEach((at: any) => {
+              names[at.id] = at.name || `Asset Type ${at.id}`;
+            });
+          }
+          setAssetTypeNames(names);
+        }
+      } catch (e) {
+        console.warn('Failed to fetch asset types:', e);
+      }
+    };
+    if (token) {
+      fetchAssetTypes();
+    }
+  }, [token]);
 
   return (
     <Box>
@@ -297,28 +392,184 @@ export const Analytics = () => {
           </Card>
         </Grid>
 
-        {/* Relationship graph */}
+        {/* Relationship hierarchy - Draggable Tree Diagram */}
         <Grid item xs={12}>
           <Card>
-            <CardHeader title="Relationships: Asset Types → Schemas → Data Records" />
-            <CardContent>
-              <Box sx={{ width: '100%', overflow: 'auto' }}>
-                <svg width={relationGraph.width} height={relationGraph.height}>
-                  {/* links */}
-                  {relationGraph.links.map((l, i) => {
-                    const from = relationGraph.nodes.find((n) => n.id === l.from)!;
-                    const to = relationGraph.nodes.find((n) => n.id === l.to)!;
+            <CardHeader title="Relationships: Asset Types → Schemas → Data Records (Drag to Move)" />
+            <CardContent sx={{ p: 2, overflowX: 'auto', overflowY: 'auto' }}>
+              <Box sx={{ minHeight: 750, position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+                <svg 
+                  width={relationGraph.width} 
+                  height={relationGraph.height} 
+                  style={{ background: theme.palette.mode === 'dark' ? '#0F172A' : '#FFFFFF', cursor: draggingNode ? 'grabbing' : 'grab' }}
+                  onMouseMove={(e) => {
+                    if (!draggingNode) return;
+                    const svg = e.currentTarget;
+                    const rect = svg.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const deltaX = (x - dragOffset.x) - (nodePositions[draggingNode]?.x || 0);
+                    const deltaY = (y - dragOffset.y) - (nodePositions[draggingNode]?.y || 0);
+                    
+                    // Find all children and move them together
+                    const draggedNode = relationGraph.nodes.find(n => n.id === draggingNode);
+                    const movedNodes: Record<string, { x: number; y: number }> = {};
+                    
+                    const moveNodeAndChildren = (nodeId: string, dx: number, dy: number) => {
+                      const currentPos = nodePositions[nodeId] || relationGraph.nodes.find(n => n.id === nodeId);
+                      if (!currentPos) return;
+                      
+                      movedNodes[nodeId] = {
+                        x: (currentPos.x || 0) + dx,
+                        y: (currentPos.y || 0) + dy
+                      };
+                      
+                      const node = relationGraph.nodes.find(n => n.id === nodeId);
+                      if (node?.children) {
+                        node.children.forEach(childId => moveNodeAndChildren(childId, dx, dy));
+                      }
+                    };
+                    
+                    moveNodeAndChildren(draggingNode, deltaX, deltaY);
+                    setNodePositions(prev => ({ ...prev, ...movedNodes }));
+                  }}
+                  onMouseUp={() => setDraggingNode(null)}
+                  onMouseLeave={() => setDraggingNode(null)}
+                >
+                  {/* Draw vertical connections */}
+                  {relationGraph.links.map((link, idx) => {
+                    const fromNode = relationGraph.nodes.find((n) => n.id === link.from);
+                    const toNode = relationGraph.nodes.find((n) => n.id === link.to);
+                    if (!fromNode || !toNode) return null;
+
+                    const fromPos = nodePositions[fromNode.id] || { x: fromNode.x, y: fromNode.y };
+                    const toPos = nodePositions[toNode.id] || { x: toNode.x, y: toNode.y };
+
+                    const fromCenterX = fromPos.x + 90;
+                    const fromCenterY = fromPos.y + 20;
+                    const toCenterX = toPos.x + 90;
+                    const toCenterY = toPos.y;
+
                     return (
-                      <line key={i} x1={from.x + 90} y1={from.y + 14} x2={to.x} y2={to.y + 14} stroke={l.color} strokeWidth={1.5} />
+                      <g key={`link-${idx}`} pointerEvents="none">
+                        {/* Vertical line down */}
+                        <line
+                          x1={fromCenterX}
+                          y1={fromCenterY}
+                          x2={fromCenterX}
+                          y2={fromCenterY + 80}
+                          stroke={link.color}
+                          strokeWidth="1.5"
+                          opacity="0.5"
+                        />
+                        {/* Horizontal line */}
+                        <line
+                          x1={fromCenterX}
+                          y1={fromCenterY + 80}
+                          x2={toCenterX}
+                          y2={fromCenterY + 80}
+                          stroke={link.color}
+                          strokeWidth="1.5"
+                          opacity="0.5"
+                        />
+                        {/* Vertical line up to target */}
+                        <line
+                          x1={toCenterX}
+                          y1={fromCenterY + 80}
+                          x2={toCenterX}
+                          y2={toCenterY}
+                          stroke={link.color}
+                          strokeWidth="1.5"
+                          opacity="0.5"
+                        />
+                      </g>
                     );
                   })}
-                  {/* nodes */}
-                  {relationGraph.nodes.map((n) => (
-                    <g key={n.id}>
-                      <rect x={n.x} y={n.y} width={180} height={28} rx={6} fill="#0F172A" stroke="#1F2937" />
-                      <text x={n.x + 10} y={n.y + 18} fontSize={12} fill="#E5E7EB">{n.label}</text>
-                    </g>
-                  ))}
+
+                  {/* Draw nodes */}
+                  {relationGraph.nodes.map((node) => {
+                    const pos = nodePositions[node.id] || { x: node.x, y: node.y };
+                    
+                    let bgColor = theme.palette.mode === 'dark' ? '#1E293B' : '#F1F5F9';
+                    let borderColor = '#6366F1';
+                    let textColor = theme.palette.mode === 'dark' ? '#E0E7FF' : '#1E293B';
+                    let isClickable = false;
+
+                    if (node.col === 1) {
+                      bgColor = theme.palette.mode === 'dark' ? '#1A365D' : '#DBEAFE';
+                      borderColor = '#0EA5E9';
+                      textColor = theme.palette.mode === 'dark' ? '#E0F2FE' : '#0C4A6E';
+                    } else if (node.col === 2) {
+                      bgColor = theme.palette.mode === 'dark' ? '#0D3B2C' : '#DCFCE7';
+                      borderColor = '#34D399';
+                      textColor = theme.palette.mode === 'dark' ? '#D1FAE5' : '#15803D';
+                    }
+                    
+                    // Special styling for records node
+                    if (node.isRecordsNode) {
+                      bgColor = theme.palette.mode === 'dark' ? '#2D4A2B' : '#E0F2E9';
+                      borderColor = '#10B981';
+                      textColor = theme.palette.mode === 'dark' ? '#A7E8C9' : '#0B6E4F';
+                      isClickable = true;
+                    }
+
+                    return (
+                      <g 
+                        key={node.id}
+                        onClick={() => {
+                          if (node.isRecordsNode) {
+                            setExpandedSchemas((prev) =>
+                              prev.includes(node.schemaId)
+                                ? prev.filter((x) => x !== node.schemaId)
+                                : [...prev, node.schemaId]
+                            );
+                          }
+                        }}
+                        onMouseDown={(e) => {
+                          if (node.isRecordsNode) {
+                            e.stopPropagation();
+                            return;
+                          }
+                          const svg = (e.target as SVGElement).closest('svg');
+                          if (!svg) return;
+                          const rect = svg.getBoundingClientRect();
+                          setDraggingNode(node.id);
+                          setDragOffset({
+                            x: e.clientX - rect.left - pos.x,
+                            y: e.clientY - rect.top - pos.y
+                          });
+                        }}
+                        style={{ cursor: isClickable ? 'pointer' : 'grab' }}
+                      >
+                        {/* Node box */}
+                        <rect
+                          x={pos.x}
+                          y={pos.y}
+                          width="180"
+                          height="40"
+                          rx="6"
+                          fill={bgColor}
+                          stroke={borderColor}
+                          strokeWidth={draggingNode === node.id ? '3' : isClickable && expandedSchemas.includes(node.schemaId) ? '2.5' : '2'}
+                          opacity="0.95"
+                          style={{ transition: 'stroke-width 0.1s' }}
+                        />
+                        {/* Node label */}
+                        <text
+                          x={pos.x + 10}
+                          y={pos.y + 26}
+                          fontSize="11"
+                          fontWeight="600"
+                          fill={textColor}
+                          fontFamily="Courier New, monospace"
+                          pointerEvents="none"
+                        >
+                          {node.label.substring(0, 20)}
+                        </text>
+                      </g>
+                    );
+                  })}
                 </svg>
               </Box>
             </CardContent>

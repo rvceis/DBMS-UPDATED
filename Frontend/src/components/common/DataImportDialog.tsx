@@ -189,7 +189,7 @@ export const DataImportDialog = ({ open, onClose, schemaId, onSuccess }: DataImp
             <Box>
               <input
                 type="file"
-                accept=".json,.csv,.tsv,.txt"
+                accept="*/*"
                 onChange={handleFileUpload}
                 style={{ display: 'none' }}
                 id="file-upload"

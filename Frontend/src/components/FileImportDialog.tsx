@@ -138,7 +138,19 @@ export default function FileImportDialog({ open, onClose, onSuccess }: FileImpor
       // If similar schemas found, go to selection step. Otherwise go to preview
       if (data.similar_schemas && data.similar_schemas.length > 0) {
         console.log(`🔍 Found ${data.similar_schemas.length} similar schemas`);
-        setStep('schema-select');
+        
+        // Auto-select 100% match for reuse
+        const perfectMatch = data.similar_schemas.find((s: any) => s.similarity === 100);
+        if (perfectMatch) {
+          console.log(`✅ Perfect match found: ${perfectMatch.schema_name}`);
+          setSchemaChoice({
+            action: 'reuse',
+            schema_id: perfectMatch.schema_id
+          });
+          setStep('preview');
+        } else {
+          setStep('schema-select');
+        }
       } else {
         console.log('ℹ️ No similar schemas found, going to preview step');
         setStep('preview');
@@ -270,7 +282,7 @@ export default function FileImportDialog({ open, onClose, onSuccess }: FileImpor
               <input
                 type="file"
                 hidden
-                accept=".json,.csv,.tsv,.xlsx,.xls,.txt"
+                accept="*/*"
                 onChange={handleFileSelect}
                 disabled={loading}
               />
@@ -333,15 +345,21 @@ export default function FileImportDialog({ open, onClose, onSuccess }: FileImpor
               Similar schemas detected. How would you like to proceed?
             </Typography>
 
+            {similarSchemas.some(s => s.similarity === 100) && (
+              <Alert severity="success" sx={{ mb: 2 }}>
+                💡 <strong>Perfect Match Found!</strong> Uploading the same file twice will automatically reuse the matching schema with the same fields.
+              </Alert>
+            )}
+
             {similarSchemas.map((schema, idx) => (
               <Box
                 key={schema.schema_id}
                 sx={{
                   p: 3,
                   mb: 2,
-                  border: '1px solid #ddd',
+                  border: schema.similarity === 100 ? '2px solid #10B981' : '1px solid #ddd',
                   borderRadius: 2,
-                  backgroundColor: '#f9f9f9',
+                  backgroundColor: schema.similarity === 100 ? '#E8F9F0' : '#f9f9f9',
                 }}
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', mb: 2 }}>

@@ -891,6 +891,17 @@ def import_file_confirm():
         # Get or create schema based on user's choice
         schema = None
         
+        # Auto-detect exact match if no explicit choice
+        if not schema_choice and not schema_id and records_data:
+            inferred_fields = set(records_data[0].keys())
+            all_schemas = SchemaModel.query.filter_by(is_deleted=False).all()
+            for s in all_schemas:
+                existing_fields = {f.field_name for f in s.fields if not f.is_deleted}
+                if existing_fields == inferred_fields:
+                    schema = s
+                    print(f"✓ AUTO-REUSED EXISTING SCHEMA (EXACT MATCH): {s.name} (ID: {s.id})")
+                    break
+        
         # Handle schema choice from user
         if schema_choice:
             choice_action = schema_choice.get('action')

@@ -1,0 +1,1578 @@
+{
+  "data_type": "Medical Records",
+  "generated_at": "2026-02-02T22:43:29.279957",
+  "record_count": 20,
+  "records": [
+    {
+      "patient_id": "PAT-292675",
+      "name": "Patient_9941",
+      "date_of_birth": "1977-02-20",
+      "age": 48,
+      "blood_type": "AB-",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-750-718-1787",
+        "email": "patient222@email.com",
+        "emergency_contact": "Contact_29"
+      },
+      "allergies": [
+        "Peanuts",
+        "Penicillin",
+        "Latex"
+      ],
+      "medical_history": [
+        "Diabetes Type 2"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_93",
+          "dosage": "363mg",
+          "frequency": "daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-12-22",
+          "type": "follow_up",
+          "provider": "Dr_81",
+          "diagnosis": [
+            "Diabetes",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 400"
+        },
+        {
+          "date": "2026-01-10",
+          "type": "procedure",
+          "provider": "Dr_4",
+          "diagnosis": [
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 978"
+        },
+        {
+          "date": "2025-02-08",
+          "type": "consultation",
+          "provider": "Dr_69",
+          "diagnosis": [
+            "Migraine"
+          ],
+          "notes": "Encounter notes 485"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_42",
+        "policy_number": "POL-3935092",
+        "valid_until": "2027-09-06"
+      }
+    },
+    {
+      "patient_id": "PAT-896856",
+      "name": "Patient_9126",
+      "date_of_birth": "2007-01-04",
+      "age": 19,
+      "blood_type": "A-",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-475-930-1025",
+        "email": "patient8780@email.com",
+        "emergency_contact": "Contact_94"
+      },
+      "allergies": [
+        "Aspirin",
+        "Ibuprofen"
+      ],
+      "medical_history": [
+        "Heart Disease"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_58",
+          "dosage": "995mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_36",
+          "dosage": "324mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_16",
+          "dosage": "190mg",
+          "frequency": "as_needed"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-12-01",
+          "type": "follow_up",
+          "provider": "Dr_40",
+          "diagnosis": [
+            "Arthritis",
+            "Asthma",
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 911"
+        },
+        {
+          "date": "2025-07-07",
+          "type": "emergency",
+          "provider": "Dr_93",
+          "diagnosis": [
+            "Asthma",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 15"
+        },
+        {
+          "date": "2026-01-09",
+          "type": "routine_checkup",
+          "provider": "Dr_17",
+          "diagnosis": [
+            "Arthritis",
+            "Asthma",
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 663"
+        },
+        {
+          "date": "2025-06-19",
+          "type": "routine_checkup",
+          "provider": "Dr_52",
+          "diagnosis": [
+            "Migraine"
+          ],
+          "notes": "Encounter notes 934"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_27",
+        "policy_number": "POL-5855326",
+        "valid_until": "2027-03-17"
+      }
+    },
+    {
+      "patient_id": "PAT-690166",
+      "name": "Patient_2642",
+      "date_of_birth": "1983-05-17",
+      "age": 42,
+      "blood_type": "O+",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-542-443-6774",
+        "email": "patient5084@email.com",
+        "emergency_contact": "Contact_89"
+      },
+      "allergies": [
+        "Ibuprofen",
+        "Peanuts",
+        "Latex"
+      ],
+      "medical_history": [
+        "Asthma",
+        "Thyroid Disease"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_1",
+          "dosage": "484mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_67",
+          "dosage": "363mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_44",
+          "dosage": "546mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_56",
+          "dosage": "969mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_15",
+          "dosage": "769mg",
+          "frequency": "daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-02-13",
+          "type": "procedure",
+          "provider": "Dr_74",
+          "diagnosis": [
+            "Migraine",
+            "Asthma",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 681"
+        },
+        {
+          "date": "2026-01-31",
+          "type": "emergency",
+          "provider": "Dr_37",
+          "diagnosis": [
+            "Diabetes",
+            "Diabetes",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 497"
+        },
+        {
+          "date": "2026-01-12",
+          "type": "procedure",
+          "provider": "Dr_48",
+          "diagnosis": [
+            "Arthritis",
+            "Asthma",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 31"
+        },
+        {
+          "date": "2025-04-13",
+          "type": "procedure",
+          "provider": "Dr_70",
+          "diagnosis": [
+            "Asthma",
+            "Arthritis",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 490"
+        },
+        {
+          "date": "2025-10-17",
+          "type": "follow_up",
+          "provider": "Dr_90",
+          "diagnosis": [
+            "Asthma",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 341"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_49",
+        "policy_number": "POL-2789263",
+        "valid_until": "2026-06-11"
+      }
+    },
+    {
+      "patient_id": "PAT-718988",
+      "name": "Patient_9057",
+      "date_of_birth": "1947-03-07",
+      "age": 78,
+      "blood_type": "B-",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-928-843-2016",
+        "email": "patient6807@email.com",
+        "emergency_contact": "Contact_4"
+      },
+      "allergies": [
+        "Latex",
+        "Peanuts"
+      ],
+      "medical_history": [],
+      "current_medications": [
+        {
+          "name": "Med_35",
+          "dosage": "384mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_53",
+          "dosage": "220mg",
+          "frequency": "daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-04-19",
+          "type": "follow_up",
+          "provider": "Dr_89",
+          "diagnosis": [
+            "Asthma",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 533"
+        },
+        {
+          "date": "2025-07-07",
+          "type": "consultation",
+          "provider": "Dr_98",
+          "diagnosis": [
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 32"
+        },
+        {
+          "date": "2025-06-08",
+          "type": "follow_up",
+          "provider": "Dr_4",
+          "diagnosis": [
+            "Hypertension",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 611"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_50",
+        "policy_number": "POL-7792875",
+        "valid_until": "2028-01-21"
+      }
+    },
+    {
+      "patient_id": "PAT-894786",
+      "name": "Patient_9612",
+      "date_of_birth": "1964-12-10",
+      "age": 61,
+      "blood_type": "O-",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-452-592-9490",
+        "email": "patient3018@email.com",
+        "emergency_contact": "Contact_77"
+      },
+      "allergies": [],
+      "medical_history": [
+        "Asthma",
+        "Diabetes Type 2"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_23",
+          "dosage": "587mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_58",
+          "dosage": "632mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_59",
+          "dosage": "835mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_97",
+          "dosage": "253mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_67",
+          "dosage": "914mg",
+          "frequency": "twice_daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-11-07",
+          "type": "procedure",
+          "provider": "Dr_44",
+          "diagnosis": [
+            "Asthma"
+          ],
+          "notes": "Encounter notes 4"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_27",
+        "policy_number": "POL-6044446",
+        "valid_until": "2027-04-12"
+      }
+    },
+    {
+      "patient_id": "PAT-296676",
+      "name": "Patient_4165",
+      "date_of_birth": "1987-06-12",
+      "age": 38,
+      "blood_type": "O+",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-673-565-9931",
+        "email": "patient2432@email.com",
+        "emergency_contact": "Contact_77"
+      },
+      "allergies": [
+        "Ibuprofen",
+        "Peanuts",
+        "Latex"
+      ],
+      "medical_history": [],
+      "current_medications": [
+        {
+          "name": "Med_45",
+          "dosage": "196mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_59",
+          "dosage": "883mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_62",
+          "dosage": "704mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_99",
+          "dosage": "898mg",
+          "frequency": "twice_daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-02-20",
+          "type": "follow_up",
+          "provider": "Dr_43",
+          "diagnosis": [
+            "Arthritis",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 311"
+        },
+        {
+          "date": "2026-01-26",
+          "type": "emergency",
+          "provider": "Dr_57",
+          "diagnosis": [
+            "Diabetes",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 725"
+        },
+        {
+          "date": "2025-02-06",
+          "type": "procedure",
+          "provider": "Dr_2",
+          "diagnosis": [
+            "Migraine",
+            "Hypertension",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 5"
+        },
+        {
+          "date": "2025-09-18",
+          "type": "follow_up",
+          "provider": "Dr_49",
+          "diagnosis": [
+            "Asthma",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 221"
+        },
+        {
+          "date": "2026-01-24",
+          "type": "procedure",
+          "provider": "Dr_91",
+          "diagnosis": [
+            "Asthma",
+            "Migraine",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 639"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_7",
+        "policy_number": "POL-7134000",
+        "valid_until": "2026-12-27"
+      }
+    },
+    {
+      "patient_id": "PAT-727133",
+      "name": "Patient_893",
+      "date_of_birth": "1964-07-20",
+      "age": 61,
+      "blood_type": "A+",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-352-830-8429",
+        "email": "patient3871@email.com",
+        "emergency_contact": "Contact_52"
+      },
+      "allergies": [],
+      "medical_history": [],
+      "current_medications": [],
+      "encounters": [
+        {
+          "date": "2025-12-09",
+          "type": "emergency",
+          "provider": "Dr_63",
+          "diagnosis": [
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 496"
+        },
+        {
+          "date": "2025-12-23",
+          "type": "routine_checkup",
+          "provider": "Dr_15",
+          "diagnosis": [
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 888"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_37",
+        "policy_number": "POL-3119192",
+        "valid_until": "2027-06-12"
+      }
+    },
+    {
+      "patient_id": "PAT-570247",
+      "name": "Patient_4758",
+      "date_of_birth": "1951-11-02",
+      "age": 74,
+      "blood_type": "O-",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-414-743-2239",
+        "email": "patient5977@email.com",
+        "emergency_contact": "Contact_45"
+      },
+      "allergies": [
+        "Penicillin",
+        "Ibuprofen"
+      ],
+      "medical_history": [],
+      "current_medications": [
+        {
+          "name": "Med_57",
+          "dosage": "366mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_38",
+          "dosage": "767mg",
+          "frequency": "twice_daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-07-31",
+          "type": "follow_up",
+          "provider": "Dr_22",
+          "diagnosis": [
+            "Arthritis",
+            "Arthritis",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 461"
+        },
+        {
+          "date": "2025-06-03",
+          "type": "emergency",
+          "provider": "Dr_3",
+          "diagnosis": [
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 896"
+        },
+        {
+          "date": "2026-01-21",
+          "type": "procedure",
+          "provider": "Dr_31",
+          "diagnosis": [
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 226"
+        },
+        {
+          "date": "2025-11-09",
+          "type": "procedure",
+          "provider": "Dr_90",
+          "diagnosis": [
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 413"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_2",
+        "policy_number": "POL-1148200",
+        "valid_until": "2027-06-14"
+      }
+    },
+    {
+      "patient_id": "PAT-224320",
+      "name": "Patient_131",
+      "date_of_birth": "1957-06-21",
+      "age": 68,
+      "blood_type": "A-",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-835-999-4090",
+        "email": "patient1362@email.com",
+        "emergency_contact": "Contact_70"
+      },
+      "allergies": [
+        "Peanuts",
+        "Shellfish",
+        "Latex"
+      ],
+      "medical_history": [
+        "Asthma",
+        "Hypertension",
+        "COPD"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_16",
+          "dosage": "472mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_15",
+          "dosage": "839mg",
+          "frequency": "as_needed"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-12-12",
+          "type": "follow_up",
+          "provider": "Dr_32",
+          "diagnosis": [
+            "Hypertension",
+            "Diabetes",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 167"
+        },
+        {
+          "date": "2025-09-11",
+          "type": "routine_checkup",
+          "provider": "Dr_65",
+          "diagnosis": [
+            "Migraine",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 107"
+        },
+        {
+          "date": "2025-11-13",
+          "type": "follow_up",
+          "provider": "Dr_46",
+          "diagnosis": [
+            "Hypertension",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 893"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_27",
+        "policy_number": "POL-6360438",
+        "valid_until": "2027-02-14"
+      }
+    },
+    {
+      "patient_id": "PAT-603209",
+      "name": "Patient_3480",
+      "date_of_birth": "1948-09-30",
+      "age": 77,
+      "blood_type": "O-",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-724-907-7532",
+        "email": "patient2511@email.com",
+        "emergency_contact": "Contact_85"
+      },
+      "allergies": [
+        "Penicillin",
+        "Latex",
+        "Shellfish"
+      ],
+      "medical_history": [],
+      "current_medications": [
+        {
+          "name": "Med_16",
+          "dosage": "589mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_54",
+          "dosage": "497mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_48",
+          "dosage": "281mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_86",
+          "dosage": "429mg",
+          "frequency": "twice_daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-06-05",
+          "type": "routine_checkup",
+          "provider": "Dr_1",
+          "diagnosis": [
+            "Migraine"
+          ],
+          "notes": "Encounter notes 431"
+        },
+        {
+          "date": "2025-12-31",
+          "type": "procedure",
+          "provider": "Dr_50",
+          "diagnosis": [
+            "Arthritis",
+            "Hypertension",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 438"
+        },
+        {
+          "date": "2025-11-17",
+          "type": "consultation",
+          "provider": "Dr_55",
+          "diagnosis": [
+            "Asthma"
+          ],
+          "notes": "Encounter notes 140"
+        },
+        {
+          "date": "2025-11-15",
+          "type": "follow_up",
+          "provider": "Dr_95",
+          "diagnosis": [
+            "Diabetes",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 666"
+        },
+        {
+          "date": "2025-08-23",
+          "type": "routine_checkup",
+          "provider": "Dr_94",
+          "diagnosis": [
+            "Hypertension",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 770"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_36",
+        "policy_number": "POL-7290859",
+        "valid_until": "2026-10-17"
+      }
+    },
+    {
+      "patient_id": "PAT-867198",
+      "name": "Patient_8538",
+      "date_of_birth": "2000-01-10",
+      "age": 26,
+      "blood_type": "B-",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-394-790-4743",
+        "email": "patient1157@email.com",
+        "emergency_contact": "Contact_24"
+      },
+      "allergies": [
+        "Aspirin"
+      ],
+      "medical_history": [],
+      "current_medications": [],
+      "encounters": [
+        {
+          "date": "2025-06-21",
+          "type": "routine_checkup",
+          "provider": "Dr_83",
+          "diagnosis": [
+            "Asthma",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 360"
+        },
+        {
+          "date": "2025-05-22",
+          "type": "routine_checkup",
+          "provider": "Dr_58",
+          "diagnosis": [
+            "Diabetes",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 363"
+        },
+        {
+          "date": "2025-02-10",
+          "type": "procedure",
+          "provider": "Dr_6",
+          "diagnosis": [
+            "Asthma"
+          ],
+          "notes": "Encounter notes 442"
+        },
+        {
+          "date": "2025-06-21",
+          "type": "follow_up",
+          "provider": "Dr_98",
+          "diagnosis": [
+            "Asthma",
+            "Hypertension",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 994"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_48",
+        "policy_number": "POL-5004459",
+        "valid_until": "2027-04-12"
+      }
+    },
+    {
+      "patient_id": "PAT-880365",
+      "name": "Patient_6807",
+      "date_of_birth": "1948-01-19",
+      "age": 78,
+      "blood_type": "B+",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-262-650-3739",
+        "email": "patient7283@email.com",
+        "emergency_contact": "Contact_23"
+      },
+      "allergies": [
+        "Peanuts"
+      ],
+      "medical_history": [
+        "COPD"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_81",
+          "dosage": "233mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_55",
+          "dosage": "821mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_75",
+          "dosage": "199mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_77",
+          "dosage": "899mg",
+          "frequency": "as_needed"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-06-01",
+          "type": "procedure",
+          "provider": "Dr_82",
+          "diagnosis": [
+            "Arthritis",
+            "Hypertension",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 828"
+        },
+        {
+          "date": "2025-09-10",
+          "type": "follow_up",
+          "provider": "Dr_48",
+          "diagnosis": [
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 667"
+        },
+        {
+          "date": "2025-02-26",
+          "type": "consultation",
+          "provider": "Dr_81",
+          "diagnosis": [
+            "Diabetes",
+            "Diabetes",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 439"
+        },
+        {
+          "date": "2025-05-08",
+          "type": "follow_up",
+          "provider": "Dr_84",
+          "diagnosis": [
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 670"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_9",
+        "policy_number": "POL-4087922",
+        "valid_until": "2027-10-06"
+      }
+    },
+    {
+      "patient_id": "PAT-803550",
+      "name": "Patient_1890",
+      "date_of_birth": "1969-05-23",
+      "age": 56,
+      "blood_type": "B-",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-811-547-4574",
+        "email": "patient7729@email.com",
+        "emergency_contact": "Contact_46"
+      },
+      "allergies": [],
+      "medical_history": [
+        "COPD",
+        "Thyroid Disease",
+        "Hypertension"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_21",
+          "dosage": "590mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_78",
+          "dosage": "217mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_96",
+          "dosage": "361mg",
+          "frequency": "twice_daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-08-09",
+          "type": "follow_up",
+          "provider": "Dr_24",
+          "diagnosis": [
+            "Hypertension",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 279"
+        },
+        {
+          "date": "2025-11-01",
+          "type": "follow_up",
+          "provider": "Dr_83",
+          "diagnosis": [
+            "Hypertension",
+            "Diabetes",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 749"
+        },
+        {
+          "date": "2025-11-14",
+          "type": "follow_up",
+          "provider": "Dr_17",
+          "diagnosis": [
+            "Arthritis",
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 549"
+        },
+        {
+          "date": "2025-04-09",
+          "type": "consultation",
+          "provider": "Dr_65",
+          "diagnosis": [
+            "Migraine",
+            "Asthma",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 815"
+        },
+        {
+          "date": "2025-11-23",
+          "type": "consultation",
+          "provider": "Dr_15",
+          "diagnosis": [
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 560"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_6",
+        "policy_number": "POL-7452081",
+        "valid_until": "2026-10-15"
+      }
+    },
+    {
+      "patient_id": "PAT-655449",
+      "name": "Patient_3878",
+      "date_of_birth": "1982-12-16",
+      "age": 43,
+      "blood_type": "O+",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-676-398-9321",
+        "email": "patient5819@email.com",
+        "emergency_contact": "Contact_97"
+      },
+      "allergies": [
+        "Latex"
+      ],
+      "medical_history": [
+        "COPD"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_4",
+          "dosage": "961mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_37",
+          "dosage": "860mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_67",
+          "dosage": "216mg",
+          "frequency": "as_needed"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-03-07",
+          "type": "procedure",
+          "provider": "Dr_90",
+          "diagnosis": [
+            "Diabetes",
+            "Arthritis",
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 919"
+        },
+        {
+          "date": "2025-03-20",
+          "type": "routine_checkup",
+          "provider": "Dr_98",
+          "diagnosis": [
+            "Migraine",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 268"
+        },
+        {
+          "date": "2025-08-04",
+          "type": "procedure",
+          "provider": "Dr_93",
+          "diagnosis": [
+            "Diabetes",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 779"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_12",
+        "policy_number": "POL-3099854",
+        "valid_until": "2026-07-03"
+      }
+    },
+    {
+      "patient_id": "PAT-170916",
+      "name": "Patient_2402",
+      "date_of_birth": "1977-10-28",
+      "age": 48,
+      "blood_type": "B+",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-852-800-4582",
+        "email": "patient7173@email.com",
+        "emergency_contact": "Contact_5"
+      },
+      "allergies": [
+        "Penicillin",
+        "Peanuts",
+        "Aspirin"
+      ],
+      "medical_history": [
+        "Asthma",
+        "COPD",
+        "Thyroid Disease"
+      ],
+      "current_medications": [],
+      "encounters": [
+        {
+          "date": "2025-08-30",
+          "type": "procedure",
+          "provider": "Dr_4",
+          "diagnosis": [
+            "Hypertension",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 127"
+        },
+        {
+          "date": "2025-07-22",
+          "type": "emergency",
+          "provider": "Dr_5",
+          "diagnosis": [
+            "Asthma",
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 186"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_6",
+        "policy_number": "POL-9145227",
+        "valid_until": "2026-07-15"
+      }
+    },
+    {
+      "patient_id": "PAT-761735",
+      "name": "Patient_4777",
+      "date_of_birth": "1988-01-18",
+      "age": 38,
+      "blood_type": "O-",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-629-947-1948",
+        "email": "patient4128@email.com",
+        "emergency_contact": "Contact_95"
+      },
+      "allergies": [
+        "Peanuts"
+      ],
+      "medical_history": [
+        "COPD",
+        "Diabetes Type 2",
+        "Thyroid Disease"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_83",
+          "dosage": "542mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_44",
+          "dosage": "741mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_36",
+          "dosage": "874mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_80",
+          "dosage": "828mg",
+          "frequency": "daily"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-12-01",
+          "type": "consultation",
+          "provider": "Dr_97",
+          "diagnosis": [
+            "Migraine",
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 86"
+        },
+        {
+          "date": "2025-06-17",
+          "type": "follow_up",
+          "provider": "Dr_70",
+          "diagnosis": [
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 635"
+        },
+        {
+          "date": "2025-06-15",
+          "type": "consultation",
+          "provider": "Dr_77",
+          "diagnosis": [
+            "Diabetes",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 225"
+        },
+        {
+          "date": "2025-08-14",
+          "type": "follow_up",
+          "provider": "Dr_99",
+          "diagnosis": [
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 285"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_32",
+        "policy_number": "POL-9053779",
+        "valid_until": "2027-07-11"
+      }
+    },
+    {
+      "patient_id": "PAT-454163",
+      "name": "Patient_5670",
+      "date_of_birth": "1948-08-30",
+      "age": 77,
+      "blood_type": "B+",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-509-256-4563",
+        "email": "patient276@email.com",
+        "emergency_contact": "Contact_93"
+      },
+      "allergies": [
+        "Ibuprofen"
+      ],
+      "medical_history": [
+        "Heart Disease",
+        "Asthma"
+      ],
+      "current_medications": [],
+      "encounters": [
+        {
+          "date": "2025-08-18",
+          "type": "follow_up",
+          "provider": "Dr_8",
+          "diagnosis": [
+            "Hypertension",
+            "Hypertension",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 934"
+        },
+        {
+          "date": "2025-07-06",
+          "type": "procedure",
+          "provider": "Dr_91",
+          "diagnosis": [
+            "Migraine"
+          ],
+          "notes": "Encounter notes 747"
+        },
+        {
+          "date": "2025-06-14",
+          "type": "routine_checkup",
+          "provider": "Dr_9",
+          "diagnosis": [
+            "Migraine",
+            "Hypertension",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 260"
+        },
+        {
+          "date": "2025-02-19",
+          "type": "emergency",
+          "provider": "Dr_80",
+          "diagnosis": [
+            "Diabetes",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 27"
+        },
+        {
+          "date": "2025-02-28",
+          "type": "emergency",
+          "provider": "Dr_71",
+          "diagnosis": [
+            "Asthma"
+          ],
+          "notes": "Encounter notes 389"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_5",
+        "policy_number": "POL-6606733",
+        "valid_until": "2026-04-04"
+      }
+    },
+    {
+      "patient_id": "PAT-627690",
+      "name": "Patient_6410",
+      "date_of_birth": "1957-03-11",
+      "age": 68,
+      "blood_type": "O+",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-491-546-8836",
+        "email": "patient143@email.com",
+        "emergency_contact": "Contact_58"
+      },
+      "allergies": [
+        "Aspirin",
+        "Shellfish"
+      ],
+      "medical_history": [
+        "Heart Disease",
+        "Asthma"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_84",
+          "dosage": "142mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_7",
+          "dosage": "440mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_31",
+          "dosage": "673mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_62",
+          "dosage": "724mg",
+          "frequency": "as_needed"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-10-15",
+          "type": "procedure",
+          "provider": "Dr_25",
+          "diagnosis": [
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 660"
+        },
+        {
+          "date": "2025-08-17",
+          "type": "follow_up",
+          "provider": "Dr_26",
+          "diagnosis": [
+            "Migraine",
+            "Migraine",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 647"
+        },
+        {
+          "date": "2025-07-15",
+          "type": "follow_up",
+          "provider": "Dr_30",
+          "diagnosis": [
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 606"
+        },
+        {
+          "date": "2025-05-22",
+          "type": "consultation",
+          "provider": "Dr_71",
+          "diagnosis": [
+            "Asthma",
+            "Hypertension",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 343"
+        },
+        {
+          "date": "2025-12-10",
+          "type": "routine_checkup",
+          "provider": "Dr_56",
+          "diagnosis": [
+            "Diabetes"
+          ],
+          "notes": "Encounter notes 144"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_33",
+        "policy_number": "POL-9533498",
+        "valid_until": "2026-09-10"
+      }
+    },
+    {
+      "patient_id": "PAT-985806",
+      "name": "Patient_8613",
+      "date_of_birth": "1998-01-25",
+      "age": 28,
+      "blood_type": "O-",
+      "gender": "M",
+      "contact": {
+        "phone": "+1-683-765-1815",
+        "email": "patient463@email.com",
+        "emergency_contact": "Contact_43"
+      },
+      "allergies": [
+        "Aspirin",
+        "Latex"
+      ],
+      "medical_history": [],
+      "current_medications": [],
+      "encounters": [
+        {
+          "date": "2025-09-08",
+          "type": "consultation",
+          "provider": "Dr_77",
+          "diagnosis": [
+            "Migraine",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 612"
+        },
+        {
+          "date": "2025-08-13",
+          "type": "routine_checkup",
+          "provider": "Dr_43",
+          "diagnosis": [
+            "Hypertension",
+            "Hypertension"
+          ],
+          "notes": "Encounter notes 643"
+        },
+        {
+          "date": "2025-06-04",
+          "type": "follow_up",
+          "provider": "Dr_43",
+          "diagnosis": [
+            "Arthritis",
+            "Asthma",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 267"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_20",
+        "policy_number": "POL-4640478",
+        "valid_until": "2027-12-19"
+      }
+    },
+    {
+      "patient_id": "PAT-804441",
+      "name": "Patient_4715",
+      "date_of_birth": "1993-11-04",
+      "age": 32,
+      "blood_type": "A+",
+      "gender": "F",
+      "contact": {
+        "phone": "+1-705-391-3220",
+        "email": "patient5664@email.com",
+        "emergency_contact": "Contact_2"
+      },
+      "allergies": [],
+      "medical_history": [
+        "Diabetes Type 2",
+        "Asthma",
+        "Heart Disease"
+      ],
+      "current_medications": [
+        {
+          "name": "Med_93",
+          "dosage": "662mg",
+          "frequency": "twice_daily"
+        },
+        {
+          "name": "Med_50",
+          "dosage": "361mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_94",
+          "dosage": "374mg",
+          "frequency": "as_needed"
+        },
+        {
+          "name": "Med_70",
+          "dosage": "741mg",
+          "frequency": "daily"
+        },
+        {
+          "name": "Med_78",
+          "dosage": "338mg",
+          "frequency": "as_needed"
+        }
+      ],
+      "encounters": [
+        {
+          "date": "2025-06-27",
+          "type": "follow_up",
+          "provider": "Dr_78",
+          "diagnosis": [
+            "Asthma",
+            "Hypertension",
+            "Arthritis"
+          ],
+          "notes": "Encounter notes 401"
+        },
+        {
+          "date": "2025-09-30",
+          "type": "emergency",
+          "provider": "Dr_56",
+          "diagnosis": [
+            "Hypertension",
+            "Migraine",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 556"
+        },
+        {
+          "date": "2025-08-23",
+          "type": "follow_up",
+          "provider": "Dr_63",
+          "diagnosis": [
+            "Migraine",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 598"
+        },
+        {
+          "date": "2025-03-21",
+          "type": "routine_checkup",
+          "provider": "Dr_99",
+          "diagnosis": [
+            "Migraine",
+            "Migraine"
+          ],
+          "notes": "Encounter notes 221"
+        },
+        {
+          "date": "2025-04-23",
+          "type": "consultation",
+          "provider": "Dr_65",
+          "diagnosis": [
+            "Migraine",
+            "Hypertension",
+            "Asthma"
+          ],
+          "notes": "Encounter notes 938"
+        }
+      ],
+      "insurance": {
+        "provider": "Insurance_25",
+        "policy_number": "POL-7275270",
+        "valid_until": "2027-09-03"
+      }
+    }
+  ]
+}
